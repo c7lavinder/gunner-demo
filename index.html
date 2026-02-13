@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gunner Control Room — Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e17;--card:#131a2b;--card-hover:#1a2340;--border:#1e2a45;--text:#e2e8f0;--text-dim:#64748b;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7;--accent:#3b82f6;--panel-bg:#0f1525}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(168,85,247,0.06) 0%,transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(34,197,94,0.05) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.demo-banner{background:linear-gradient(135deg,#1a1a2e,#16213e);border-bottom:2px solid var(--purple);padding:10px 24px;text-align:center;font-size:14px;font-weight:700;color:var(--purple);letter-spacing:1px;position:relative;z-index:101}
+.demo-banner a{color:var(--blue);text-decoration:none;margin-left:16px;font-weight:600;font-size:12px}
+.demo-banner a:hover{text-decoration:underline}
+
+.header{position:sticky;top:0;z-index:100;background:rgba(10,14,23,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 24px}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px rgba(59,130,246,0.3)}
+.logo-text h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-text p{font-size:12px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.header-right{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.connection-badge{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--card);border:1px solid rgba(34,197,94,0.3);border-radius:8px;font-size:12px;font-weight:600;color:var(--green)}
+.stats-bar{display:flex;gap:20px;flex-wrap:wrap}
+.stat{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px}
+.stat .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.stat .dot.green{background:var(--green);box-shadow:0 0 8px var(--green)}
+.stat .dot.yellow{background:var(--yellow);box-shadow:0 0 8px var(--yellow)}
+.stat .dot.red{background:var(--red);box-shadow:0 0 8px var(--red)}
+.stat .num{font-size:18px;font-weight:700}
+.stat .label{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px}
+
+.team-bar{max-width:1400px;margin:0 auto;padding:16px 24px 0;display:flex;gap:12px;flex-wrap:wrap;position:relative;z-index:1}
+.team-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:200px}
+.team-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:white}
+.team-info .tname{font-size:13px;font-weight:600}
+.team-info .trole{font-size:11px;color:var(--text-dim)}
+.team-score{margin-left:auto;text-align:right}
+.team-score .tscore{font-size:16px;font-weight:700}
+.team-score .tcalls{font-size:10px;color:var(--text-dim)}
+
+.main{max-width:1400px;margin:0 auto;padding:24px;position:relative;z-index:1}
+
+.engine{margin-bottom:32px}
+.engine-header{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.engine-badge{padding:4px 12px;border-radius:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.engine-badge.online{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.engine-title{font-size:16px;font-weight:600;color:var(--text)}
+.engine-subtitle{font-size:13px;color:var(--text-dim)}
+
+.desk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+
+.desk{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;cursor:pointer;transition:all 0.25s ease;position:relative;overflow:hidden}
+.desk:hover{background:var(--card-hover);border-color:rgba(59,130,246,0.3);transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.3)}
+.desk::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0;opacity:0;transition:opacity 0.25s;background:linear-gradient(90deg,var(--green),var(--blue))}
+.desk:hover::before{opacity:1}
+.desk-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.bot-avatar{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;position:relative;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25)}
+.status-dot{position:absolute;bottom:-2px;right:-2px;width:14px;height:14px;border-radius:50%;border:3px solid var(--card);background:var(--green);box-shadow:0 0 6px var(--green)}
+.desk-actions{font-size:11px;color:var(--text-dim);background:rgba(255,255,255,0.05);padding:3px 8px;border-radius:6px}
+.bot-name{font-size:14px;font-weight:600;margin-bottom:4px}
+.bot-desc{font-size:12px;color:var(--text-dim);line-height:1.4}
+.bot-meta{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.05)}
+.bot-status-text{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:var(--green)}
+.pulse{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;animation:pulse 2s infinite;background:var(--green)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:200;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.overlay.open{opacity:1;pointer-events:all}
+.panel{position:fixed;top:0;right:0;bottom:0;width:480px;max-width:100vw;background:var(--panel-bg);border-left:1px solid var(--border);z-index:201;transform:translateX(100%);transition:transform 0.35s cubic-bezier(0.4,0,0.2,1);overflow-y:auto;display:flex;flex-direction:column}
+.panel.open{transform:translateX(0)}
+.panel-header{padding:24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px;position:sticky;top:0;background:var(--panel-bg);z-index:1}
+.panel-close{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:background 0.2s}
+.panel-close:hover{background:var(--card)}
+.panel-avatar{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:28px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.25)}
+.panel-info h2{font-size:18px;font-weight:700}
+.panel-info p{font-size:13px;color:var(--text-dim)}
+.panel-body{padding:24px;flex:1}
+.panel-section{margin-bottom:24px}
+.panel-section h3{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.metric .val{font-size:22px;font-weight:700}
+.metric .mlabel{font-size:11px;color:var(--text-dim);margin-top:2px}
+.activity-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.activity-item:last-child{border-bottom:none}
+.activity-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.activity-dot.blue{background:var(--blue)}
+.activity-dot.green{background:var(--green)}
+.activity-dot.yellow{background:var(--yellow)}
+.activity-dot.red{background:var(--red)}
+.activity-dot.purple{background:var(--purple)}
+.activity-text{font-size:13px;line-height:1.5}
+.activity-time{font-size:11px;color:var(--text-dim)}
+.desc-text{font-size:14px;color:var(--text);line-height:1.6;background:var(--card);padding:14px;border-radius:10px;border:1px solid var(--border)}
+.signal-card{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:14px;margin-top:12px}
+.signal-card .signal-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.signal-card .signal-text{font-size:13px;line-height:1.5;color:var(--text)}
+
+@media(max-width:600px){
+  .header-inner{flex-direction:column;align-items:flex-start}
+  .stats-bar{width:100%;justify-content:space-between}
+  .desk-grid{grid-template-columns:1fr 1fr}
+  .panel{width:100vw}
+  .stat{padding:6px 10px}
+  .stat .num{font-size:15px}
+  .team-bar{flex-direction:column}
+}
+@media(max-width:400px){.desk-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">🎯 DEMO — Peak Properties Denver <a href="dashboard.html">View Engine Logs →</a></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">🎯</div>
+      <div class="logo-text">
+        <h1>Gunner Control Room</h1>
+        <p>AI Workforce Dashboard</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="connection-badge">🟢 Connected to Engine</div>
+      <span style="font-size:11px;color:var(--text-dim)" id="last-refresh"></span>
+      <div class="stats-bar">
+        <div class="stat"><div class="dot green"></div><div><div class="num">18</div><div class="label">Online</div></div></div>
+        <div class="stat"><div class="dot yellow"></div><div><div class="num">2</div><div class="label">Standby</div></div></div>
+        <div class="stat"><div class="dot red"></div><div><div class="num">0</div><div class="label">Offline</div></div></div>
+        <div class="stat"><div><div class="num">20</div><div class="label">Total Bots</div></div></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="team-bar">
+  <div class="team-card">
+    <div class="team-avatar" style="background:linear-gradient(135deg,#3b82f6,#6366f1)">MR</div>
+    <div class="team-info"><div class="tname">Marcus Rivera</div><div class="trole">Lead Manager</div></div>
+    <div class="team-score"><div class="tscore" style="color:var(--yellow)">62%</div><div class="tcalls">47 calls this week</div></div>
+  </div>
+  <div class="team-card">
+    <div class="team-avatar" style="background:linear-gradient(135deg,#8b5cf6,#a855f7)">SC</div>
+    <div class="team-info"><div class="tname">Sarah Chen</div><div class="trole">Lead Manager</div></div>
+    <div class="team-score"><div class="tscore" style="color:var(--yellow)">54%</div><div class="tcalls">38 calls this week</div></div>
+  </div>
+  <div class="team-card">
+    <div class="team-avatar" style="background:linear-gradient(135deg,#22c55e,#16a34a)">JT</div>
+    <div class="team-info"><div class="tname">Jake Thompson</div><div class="trole">Acquisition Manager</div></div>
+    <div class="team-score"><div class="tscore" style="color:var(--green)">71%</div><div class="tcalls">22 calls this week</div></div>
+  </div>
+  <div class="team-card">
+    <div class="team-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">MS</div>
+    <div class="team-info"><div class="tname">Maria Santos</div><div class="trole">Dispo Manager</div></div>
+    <div class="team-score"><div class="tscore" style="color:var(--green)">—</div><div class="tcalls">12 buyers engaged</div></div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closePanel()"></div>
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <button class="panel-close" onclick="closePanel()">✕</button>
+    <div class="panel-avatar" id="p-avatar"></div>
+    <div class="panel-info"><h2 id="p-name"></h2><p id="p-engine"></p></div>
+  </div>
+  <div class="panel-body" id="p-body"></div>
+</div>
+
+<main class="main" id="main"></main>
+
+<script>
+// Helper: generate today's timestamps
+function todayAt(h,m){const d=new Date();d.setHours(h,m,0,0);return d;}
+function timeAgo(d){
+  const diff=(Date.now()-d.getTime())/1000;
+  if(diff<60)return Math.round(diff)+'s ago';
+  if(diff<3600)return Math.round(diff/60)+'m ago';
+  if(diff<86400)return Math.round(diff/3600)+'h ago';
+  return Math.round(diff/86400)+'d ago';
+}
+function fmtTime(d){return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+
+const engines = [
+  {
+    id:'transcript', name:'Transcript Processing', subtitle:'3 bots · 142 events · Last scan: 3m ago',
+    bots:[
+      {name:'LM Assistant',icon:'📞',desc:'Post-call automation for Lead Managers. Processes call transcripts, updates CRM fields, and triggers follow-up workflows automatically.',
+       lastAction:'3m ago',preview:'Marcus Rivera → Robert Williams re: 4521 Elm St — Grade: B',
+       metrics:[{v:'87',l:'Calls Processed'},{v:'🟢',l:'Status'},{v:'3m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Marcus Rivera called Robert Williams re: 4521 Elm St. Grade: B. Summary: Seller motivated, inherited property, wants to sell within 30 days. Tagged: Probate, Hot.',time:todayAt(14,47),color:'green'},
+         {text:'Sarah Chen called Lisa Park re: 3847 Maple Dr. Grade: C+. Summary: Seller considering listing with agent, not urgent. Needs nurture.',time:todayAt(14,22),color:'blue'},
+         {text:'Marcus Rivera called James Foster re: 901 Walnut St. Grade: A. Summary: Vacant property, seller lives out of state, highly motivated. Tagged: Absentee, Hot.',time:todayAt(13,55),color:'green'},
+         {text:'Jake Thompson called Sandra Miller re: 1592 Birch Rd. Grade: B+. Summary: Pre-foreclosure, wants to avoid auction. Walkthrough scheduled.',time:todayAt(11,30),color:'green'},
+         {text:'Sarah Chen called Michael Torres re: 2103 Cedar Lane. Grade: B. Summary: Downsizing, flexible on timeline.',time:todayAt(10,45),color:'blue'},
+         {text:'Marcus Rivera called Karen White re: 3310 Ash Ct. Grade: D. Summary: Just looking for a free estimate, no motivation.',time:todayAt(9,15),color:'yellow'},
+       ]},
+      {name:'AM Assistant',icon:'🎧',desc:'Post-call automation for Acquisition Managers. Captures deal details from calls and pushes structured data to pipeline.',
+       lastAction:'28m ago',preview:'Jake Thompson → Sandra Miller — walkthrough confirmed',
+       metrics:[{v:'22',l:'Calls Processed'},{v:'🟢',l:'Status'},{v:'28m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Jake Thompson discussed offer terms with Sandra Miller for 1592 Birch Rd. Seller counter: $185K. Our MAO: $172K. Spread: $13K.',time:todayAt(14,32),color:'green'},
+         {text:'Jake Thompson completed walkthrough notes for 1847 Oak Ave. Estimated repairs: $35K. ARV: $310K.',time:todayAt(11,45),color:'blue'},
+         {text:'Jake Thompson called Robert Williams re: 4521 Elm St follow-up. Seller wants offer by Friday.',time:todayAt(10,10),color:'green'},
+       ]},
+      {name:'Lead Summary Bot',icon:'📋',desc:'Auto-generates concise summaries from call transcripts. Creates structured briefs for team review.',
+       lastAction:'5m ago',preview:'Generated 12 summaries today',
+       metrics:[{v:'12',l:'Summaries Today'},{v:'🟢',l:'Status'},{v:'5m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Summary generated: Robert Williams (4521 Elm St) — Inherited from mother, probate complete, property vacant, wants quick close. HOT.',time:todayAt(14,48),color:'green'},
+         {text:'Summary generated: Lisa Park (3847 Maple Dr) — Considering agent, 3BR/2BA ranch, moderate condition. WARM.',time:todayAt(14,23),color:'blue'},
+         {text:'Summary generated: James Foster (901 Walnut St) — Out-of-state owner, vacant 8 months, highly motivated. HOT.',time:todayAt(13,56),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'crm-scanner', name:'CRM Scanner', subtitle:'3 bots · 89 events · Last scan: 1m ago',
+    bots:[
+      {name:'Pipeline Signals',icon:'📡',desc:'Detects missed and at-risk opportunities in the CRM pipeline. Alerts team to stale deals and follow-up gaps.',
+       lastAction:'1m ago',preview:'3 signals: 1 missed opp, 1 at risk, 1 worth a look',
+       metrics:[{v:'3',l:'Signals Today'},{v:'🟢',l:'Status'},{v:'1m ago',l:'Last Scan'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'⚠️ MISSED OPPORTUNITY: Contact David Kim (5540 Pine Ridge) last called 14 days ago. Was WARM, now going cold. No follow-up scheduled.',time:todayAt(14,41),color:'red'},
+         {text:'🔥 AT RISK: Sandra Miller (1592 Birch Rd) has a competing offer. Jake Thompson needs to submit by EOD or we lose it.',time:todayAt(13,15),color:'red'},
+         {text:'👀 WORTH A LOOK: Patricia Hayes (7720 Spruce Dr) — just paid property taxes late. Possible distress signal. No one has reached out.',time:todayAt(11,20),color:'yellow'},
+       ],
+       signal:{title:'🚨 LOST DEAL DETECTED',text:'892 Pine St sold to competitor 3 days ago. We made no offer. Timeline gap: 6 days from qualification to loss. UNVERIFIED — no deed transfer found yet. Recommend: county records check + team debrief on response time.'}
+      },
+      {name:'Data Hygiene Bot',icon:'🧹',desc:'Continuously cleans and validates CRM data. Fixes duplicates, standardizes formats, fills missing fields.',
+       lastAction:'12m ago',preview:'4 records cleaned, 1 duplicate merged',
+       metrics:[{v:'47',l:'Records Cleaned'},{v:'🟢',l:'Status'},{v:'12m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Merged duplicate contacts: "Rob Williams" and "Robert Williams" — same phone, same property (4521 Elm St).',time:todayAt(14,35),color:'blue'},
+         {text:'Auto-filled missing property address for contact Michael Torres using voicemail transcript: 2103 Cedar Lane.',time:todayAt(12,20),color:'blue'},
+         {text:'Standardized 12 phone number formats to E.164.',time:todayAt(9,30),color:'blue'},
+       ]},
+      {name:'Process Compliance Bot',icon:'⚖️',desc:'Enforces business rules and SOP compliance across the CRM. Flags violations and auto-corrects where possible.',
+       lastAction:'8m ago',preview:'1 SOP violation flagged',
+       metrics:[{v:'3',l:'Violations Today'},{v:'🟢',l:'Status'},{v:'8m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'⚠️ SOP VIOLATION: Marcus Rivera moved lead to "Appointment Set" without logging call notes. Auto-reminder sent.',time:todayAt(14,12),color:'yellow'},
+         {text:'✅ COMPLIANT: Jake Thompson completed all required fields before advancing 1847 Oak Ave to "Under Contract".',time:todayAt(11,50),color:'green'},
+         {text:'⚠️ SOP VIOLATION: Sarah Chen has 3 leads in "New" status >48 hours. Auto-escalation triggered.',time:todayAt(9,45),color:'yellow'},
+       ]}
+    ]
+  },
+  {
+    id:'nurture', name:'Nurture & Timing', subtitle:'4 bots · 203 events · Last scan: 30s ago',
+    bots:[
+      {name:'Follow Up Bot',icon:'🔄',desc:'Intelligent nurture sequences that adapt timing and messaging based on lead behavior and engagement signals.',
+       lastAction:'30s ago',preview:'7 active sequences, 2 after-hours queued',
+       metrics:[{v:'7',l:'Active Sequences'},{v:'🟢',l:'Status'},{v:'30s ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Sent follow-up SMS to Robert Williams (4521 Elm St): "Hi Robert, just following up on our conversation. I can have an offer to you by Friday — would that work?"',time:todayAt(14,50),color:'green'},
+         {text:'Follow-up reminder sent to Sarah Chen: Lisa Park (3847 Maple Dr) — 36 hours no contact, WARM lead. Call today.',time:todayAt(14,10),color:'yellow'},
+         {text:'Sequence advanced: James Foster moved from "Day 1 Follow-up" to "Day 3 Check-in".',time:todayAt(13,00),color:'blue'},
+         {text:'Auto-paused sequence for Karen White — lead marked as "Not Interested" after D-grade call.',time:todayAt(10,00),color:'blue'},
+       ]},
+      {name:'After-Hours Bot',icon:'🌙',desc:'Engages inbound leads during off-hours with intelligent responses. Qualifies and schedules callbacks for the team.',
+       lastAction:'14h ago',preview:'2 after-hours leads queued for morning',
+       metrics:[{v:'2',l:'Leads Queued'},{v:'🟢',l:'Status'},{v:'Standby',l:'Next Active'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'After-hours lead detected: Michael Torres messaged at 9:47 PM about 2103 Cedar Lane. Sent acknowledgment + queued for morning priority callback.',time:todayAt(9,47),color:'purple'},
+         {text:'After-hours lead detected: Angela Davis called at 10:22 PM about 8890 Willow Way. Voicemail captured, queued for Marcus Rivera.',time:todayAt(10,22),color:'purple'},
+         {text:'Morning handoff complete: 2 after-hours leads distributed to team. Marcus Rivera → Michael Torres, Sarah Chen → Angela Davis.',time:todayAt(8,30),color:'green'},
+       ]},
+      {name:'Seller Re-engagement Bot',icon:'🔁',desc:'Re-engages declined sellers with timed follow-ups. Monitors market changes that might shift seller motivation.',
+       lastAction:'2m ago',preview:'1 re-engagement triggered — "Call back in February"',
+       metrics:[{v:'1',l:'Triggered Today'},{v:'🟢',l:'Status'},{v:'2m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🔥 RE-ENGAGEMENT TRIGGERED: Thomas Grant (6200 Poplar Ave) — Seller said "call me back in February" on Dec 12. It\'s February. Auto-triggered callback for Marcus Rivera.',time:todayAt(14,45),color:'green'},
+         {text:'Monitoring: 14 sellers in "call back later" queue. Next triggers: 3 in March, 5 in April.',time:todayAt(9,00),color:'blue'},
+       ]},
+      {name:'Appointment Bot',icon:'📅',desc:'Handles scheduling, confirmations, and no-show follow-ups. Integrates with team calendars for real-time availability.',
+       lastAction:'18m ago',preview:'3 appointments today, 1 callback, 0 cancellations',
+       metrics:[{v:'3',l:'Appointments Today'},{v:'🟢',l:'Status'},{v:'18m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Appointment reminder sent: Jake Thompson walkthrough at 2:00 PM — 1592 Birch Rd with Sandra Miller. Confirmation received ✅.',time:todayAt(13,00),color:'green'},
+         {text:'Callback captured: Robert Williams requested callback at 4:30 PM. Scheduled for Marcus Rivera.',time:todayAt(12,15),color:'blue'},
+         {text:'Appointment confirmed: Jake Thompson at 10:00 AM — 1847 Oak Ave walkthrough. Seller confirmed via SMS.',time:todayAt(8,45),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'reporting', name:'Data & Reporting', subtitle:'3 bots · 67 events · Last scan: 5m ago',
+    bots:[
+      {name:'KPI Entry Bot',icon:'📊',desc:'Auto-populates KPI spreadsheets from CRM, dialer, and SMS platform data. Eliminates manual data entry.',
+       lastAction:'5m ago',preview:"Today: 87 calls, 23 convos, 4 appts, 2 offers",
+       metrics:[{v:'87',l:'Calls Today'},{v:'23',l:'Conversations'},{v:'4',l:'Appointments'},{v:'2',l:'Offers Made'}],
+       activity:[
+         {text:'KPI snapshot recorded: Marcus Rivera — 47 calls, 23 conversations, 4 appointments, 2 offers. Best call: James Foster (Grade A).',time:todayAt(14,55),color:'green'},
+         {text:'KPI snapshot recorded: Sarah Chen — 38 calls, 15 conversations, 1 appointment, 0 offers. Follow-up rate: 82%.',time:todayAt(14,55),color:'blue'},
+         {text:'KPI snapshot recorded: Jake Thompson — 22 calls, 8 conversations, 2 walkthroughs, 1 offer submitted.',time:todayAt(14,55),color:'blue'},
+         {text:'Daily team total: 87 calls (+12% vs last Thursday), 23 conversations (26% connect rate), 4 appointments, 2 offers.',time:todayAt(14,56),color:'green'},
+       ]},
+      {name:'Report Generator',icon:'📈',desc:'Generates daily, weekly, and monthly performance reports with charts and insights. Auto-distributes to stakeholders.',
+       lastAction:'2h ago',preview:'Weekly report generated and sent',
+       metrics:[{v:'3',l:'Reports This Week'},{v:'🟢',l:'Status'},{v:'2h ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Weekly performance report generated. Highlights: Call volume up 15%, appointment-to-offer ratio improved to 50%, Marcus Rivera top performer.',time:todayAt(12,00),color:'green'},
+         {text:'Daily digest sent to team Slack: 4 appointments set, 2 offers pending, 1 deal in packaging.',time:todayAt(8,00),color:'blue'},
+       ]},
+      {name:'Team Chat Digest',icon:'💬',desc:'Summarizes team chat channels into daily digests. Highlights decisions, action items, and key discussions.',
+       lastAction:'4h ago',preview:'Morning digest: 3 action items captured',
+       metrics:[{v:'3',l:'Action Items'},{v:'🟢',l:'Status'},{v:'4h ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Morning digest generated: 3 action items — (1) Marcus to call Robert Williams back by Friday, (2) Jake to submit offer on 1592 Birch Rd today, (3) Sarah to follow up with Lisa Park.',time:todayAt(10,00),color:'blue'},
+       ]}
+    ]
+  },
+  {
+    id:'scheduling', name:'Scheduling', subtitle:'2 bots · 34 events · Last scan: 2m ago',
+    bots:[
+      {name:'Scheduling Coordinator',icon:'🗓️',desc:'Manages AM availability, prevents double-booking, and optimizes appointment distribution across the team.',
+       lastAction:'2m ago',preview:'3 appointments today, 0 conflicts',
+       metrics:[{v:'3',l:'Appts Today'},{v:'0',l:'Conflicts'},{v:'1',l:'Callbacks'},{v:'0',l:'Cancellations'}],
+       activity:[
+         {text:'Schedule optimized: Jake Thompson has 1592 Birch Rd at 2:00 PM and 1847 Oak Ave at 10:00 AM. Route calculated: 12 min drive between.',time:todayAt(8,15),color:'green'},
+         {text:'Availability updated: Marcus Rivera blocked 4:30–5:00 PM for Robert Williams callback.',time:todayAt(12,20),color:'blue'},
+       ]},
+      {name:'Callback Capture Bot',icon:'📲',desc:'AI listens to callback requests in voicemails and missed calls. Auto-schedules return calls for the team.',
+       lastAction:'45m ago',preview:'1 callback captured from voicemail',
+       metrics:[{v:'1',l:'Captured Today'},{v:'🟢',l:'Status'},{v:'45m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Callback captured from voicemail: Robert Williams — "Hey, this is Robert. Can you call me back around 4:30? I want to talk about the offer." Scheduled for Marcus Rivera.',time:todayAt(14,10),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'deals', name:'Documents & Deals', subtitle:'3 bots · 28 events · Last scan: 8m ago',
+    bots:[
+      {name:'Contract Bot',icon:'📝',desc:'Generates, sends, and tracks contracts. Auto-populates from deal data and monitors signature status.',
+       lastAction:'1h ago',preview:'1 contract sent, awaiting signature',
+       metrics:[{v:'1',l:'Contracts Sent'},{v:'0',l:'Signed Today'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Contract generated for 1847 Oak Ave — Purchase price: $178,000. Sent to seller for e-signature via DocuSign. Status: Awaiting.',time:todayAt(13,30),color:'blue'},
+         {text:'Contract reminder: 1847 Oak Ave seller hasn\'t opened email yet. Auto-reminder queued for 24h.',time:todayAt(14,30),color:'yellow'},
+       ]},
+      {name:'Deal Packaging Bot',icon:'📦',desc:'Auto-populates deal packages with comps, photos, repair estimates, and financials for buyer distribution.',
+       lastAction:'22m ago',preview:'1847 Oak Ave — 85% complete, missing: repairs, photos',
+       metrics:[{v:'1',l:'In Progress'},{v:'85%',l:'Completeness'},{v:'2',l:'Items Missing'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Deal package for 1847 Oak Ave: 85% complete. ✅ Comps pulled (3), ✅ ARV calculated ($310K), ✅ Title check clean, ❌ Missing: repair estimate, ❌ Missing: property photos. Nudging Jake Thompson.',time:todayAt(14,38),color:'yellow'},
+         {text:'Comps auto-pulled for 1847 Oak Ave: 1823 Oak Ave ($295K, sold 45d ago), 1901 Oak Ave ($318K, sold 60d ago), 1790 Maple ($305K, sold 30d ago).',time:todayAt(11,00),color:'blue'},
+       ]},
+      {name:'Deal Distribution Bot',icon:'🚀',desc:'Pushes completed deal packages to buyer list. Tracks interest, manages offers, and reports engagement.',
+       lastAction:'3h ago',preview:'892 Pine St sent to 12 matched buyers',
+       metrics:[{v:'1',l:'Deals Distributed'},{v:'12',l:'Buyers Reached'},{v:'4',l:'Views'},{v:'1',l:'Offers Received'}],
+       activity:[
+         {text:'Deal distributed: 892 Pine St package sent to 12 matched buyers (criteria: Denver metro, SFR, <$200K). 4 views, 1 offer received ($165K from BuyerCo LLC).',time:todayAt(11,30),color:'green'},
+         {text:'Buyer engagement update: 892 Pine St — 4/12 opened (33%), 1 offer submitted. Follow-up blast scheduled for non-openers.',time:todayAt(14,00),color:'blue'},
+       ]}
+    ]
+  },
+  {
+    id:'lead-iq', name:'Lead IQ', subtitle:'1 bot · 52 events · Last scan: 4m ago',
+    bots:[
+      {name:'Lead Scoring Engine',icon:'🧠',desc:'AI-powered lead scoring based on motivation, timeline, property condition, and behavioral signals. Prioritizes the hottest leads automatically.',
+       lastAction:'4m ago',preview:'5 leads scored today — 2 HOT, 3 WARM',
+       metrics:[{v:'5',l:'Scored Today'},{v:'2',l:'HOT'},{v:'3',l:'WARM'},{v:'0',l:'COLD'}],
+       activity:[
+         {text:'🔥 HOT — Robert Williams (4521 Elm St): Score 92. Factors: Inherited/probate ✓, Timeline <30 days ✓, Vacant ✓, Motivated ✓. Assigned to Marcus Rivera.',time:todayAt(14,48),color:'red'},
+         {text:'🔥 HOT — James Foster (901 Walnut St): Score 88. Factors: Absentee owner ✓, Vacant 8mo ✓, Out-of-state ✓, Highly motivated ✓. Assigned to Marcus Rivera.',time:todayAt(13,57),color:'red'},
+         {text:'🟡 WARM — Lisa Park (3847 Maple Dr): Score 61. Factors: Considering agent (risk), moderate condition, flexible timeline. Needs nurture.',time:todayAt(14,24),color:'yellow'},
+         {text:'🟡 WARM — Michael Torres (2103 Cedar Lane): Score 58. Factors: Downsizing, no urgency, good condition. Long-term nurture.',time:todayAt(10,50),color:'yellow'},
+         {text:'🟡 WARM — Sandra Miller (1592 Birch Rd): Score 67. Factors: Pre-foreclosure ✓, competing offer (risk), timeline pressure ✓.',time:todayAt(11,35),color:'yellow'},
+       ]}
+    ]
+  },
+  {
+    id:'standalone', name:'Standalone Bots', subtitle:'4 bots · 31 events',
+    bots:[
+      {name:'PPL Refund Bot',icon:'💰',desc:'Automatically files lead disputes on PPL platforms (Leadzolo, PropertyLeads, MotivatedSellers). Saves hours of manual work weekly.',
+       lastAction:'1h ago',preview:'2 disputes filed today, $340 recovered this week',
+       metrics:[{v:'2',l:'Disputes Today'},{v:'$340',l:'Recovered (Week)'},{v:'78%',l:'Win Rate'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Dispute filed on Leadzolo: Lead #4892 — wrong number, confirmed disconnected after 3 attempts. $45 refund pending.',time:todayAt(13,20),color:'green'},
+         {text:'Dispute filed on PropertyLeads: Lead #7721 — property already under contract (verified via public records). $55 refund pending.',time:todayAt(11,45),color:'green'},
+         {text:'Dispute won: MotivatedSellers Lead #3301 — $65 refunded. Reason: duplicate lead.',time:todayAt(9,00),color:'green'},
+       ]},
+      {name:'Market Watch Bot',icon:'🔍',desc:'Tracks market trends, comparable sales, and pricing shifts. Provides daily market intelligence for acquisition decisions.',
+       lastAction:'6h ago',preview:'Denver metro: median down 2.3% MoM',
+       metrics:[{v:'127',l:'Comps Tracked'},{v:'-2.3%',l:'Median MoM'},{v:'34',l:'Days on Market'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Market update: Denver metro median sale price $412K (-2.3% MoM). Inventory up 8%. Days on market: 34 avg. Buyer market indicators strengthening.',time:todayAt(8,00),color:'blue'},
+       ]},
+      {name:'MLS Monitor Bot',icon:'🏠',desc:'Monitors MLS for new listings matching investment criteria. Sends instant alerts when target properties hit the market.',
+       lastAction:'25m ago',preview:'3 new matches today',
+       metrics:[{v:'3',l:'New Matches'},{v:'12',l:'Watching'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'New MLS match: 4401 Elm St — 3BR/1BA, listed $189K, estimated ARV $280K. Distressed photos. Alert sent to team.',time:todayAt(14,20),color:'green'},
+         {text:'New MLS match: 7890 Birch Blvd — 4BR/2BA, listed $210K, estimated ARV $340K. Estate sale. Alert sent.',time:todayAt(11,10),color:'green'},
+         {text:'New MLS match: 2200 Cedar Ct — 2BR/1BA, listed $145K, estimated ARV $215K. Vacant. Alert sent.',time:todayAt(9,30),color:'green'},
+       ]},
+      {name:'Voicemail Bot',icon:'🎤',desc:'Processes CallRail voicemail transcriptions. Categorizes, prioritizes, and routes voicemails to the right team member.',
+       lastAction:'35m ago',preview:'4 voicemails processed, 1 priority',
+       metrics:[{v:'4',l:'Processed Today'},{v:'1',l:'Priority'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🔴 PRIORITY: Voicemail from Robert Williams — "Hey, can you call me back around 4:30? Want to talk about the offer." Routed to Marcus Rivera.',time:todayAt(14,08),color:'red'},
+         {text:'Voicemail processed: Unknown caller asking about selling 9901 Oak Dr. New lead created, assigned to Sarah Chen.',time:todayAt(12,30),color:'blue'},
+         {text:'Voicemail processed: Spam/robocall detected. Auto-archived.',time:todayAt(10,15),color:'blue'},
+         {text:'Voicemail processed: Angela Davis callback request for morning. Routed to Sarah Chen.',time:todayAt(8,35),color:'blue'},
+       ]}
+    ]
+  }
+];
+
+function render(){
+  const main=document.getElementById('main');
+  main.innerHTML='';
+  engines.forEach(eng=>{
+    const section=document.createElement('div');
+    section.className='engine';
+    section.innerHTML=`<div class="engine-header">
+      <span class="engine-badge online">LIVE</span>
+      <span class="engine-title">${eng.name}</span>
+      <span class="engine-subtitle">${eng.subtitle}</span>
+    </div><div class="desk-grid"></div>`;
+    const grid=section.querySelector('.desk-grid');
+    eng.bots.forEach(bot=>{
+      const card=document.createElement('div');
+      card.className='desk';
+      card.innerHTML=`<div class="desk-top">
+        <div class="bot-avatar">${bot.icon}<div class="status-dot"></div></div>
+        <div class="desk-actions">${bot.lastAction}</div>
+      </div>
+      <div class="bot-name">${bot.name}</div>
+      <div class="bot-desc">${bot.preview}</div>
+      <div class="bot-meta"><span class="bot-status-text"><span class="pulse"></span>Online</span></div>`;
+      card.onclick=()=>openPanel(bot,eng);
+      grid.appendChild(card);
+    });
+    main.appendChild(section);
+  });
+  document.getElementById('last-refresh').textContent='Updated '+new Date().toLocaleTimeString();
+}
+
+function openPanel(bot,eng){
+  document.getElementById('p-avatar').innerHTML=bot.icon;
+  document.getElementById('p-name').textContent=bot.name;
+  document.getElementById('p-engine').textContent=eng.name;
+  const body=document.getElementById('p-body');
+  let html=`<div class="panel-section"><h3>Description</h3><div class="desc-text">${bot.desc}</div></div>`;
+  if(bot.metrics){
+    html+=`<div class="panel-section"><h3>Live Metrics</h3><div class="metric-grid">`;
+    bot.metrics.forEach(m=>{html+=`<div class="metric"><div class="val">${m.v}</div><div class="mlabel">${m.l}</div></div>`;});
+    html+=`</div></div>`;
+  }
+  if(bot.signal){
+    html+=`<div class="panel-section"><div class="signal-card"><div class="signal-title">${bot.signal.title}</div><div class="signal-text">${bot.signal.text}</div></div></div>`;
+  }
+  if(bot.activity){
+    html+=`<div class="panel-section"><h3>Recent Activity</h3>`;
+    bot.activity.forEach(a=>{
+      html+=`<div class="activity-item"><div class="activity-dot ${a.color}"></div><div><div class="activity-text">${a.text}</div><div class="activity-time">${fmtTime(a.time)} · ${timeAgo(a.time)}</div></div></div>`;
+    });
+    html+=`</div>`;
+  }
+  body.innerHTML=html;
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('panel').classList.add('open');
+}
+
+function closePanel(){
+  document.getElementById('overlay').classList.remove('open');
+  document.getElementById('panel').classList.remove('open');
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel();});
+
+render();
+// Auto-refresh timestamps every 30s
+setInterval(()=>{
+  document.getElementById('last-refresh').textContent='Updated '+new Date().toLocaleTimeString();
+  // Re-render to update timeAgo values
+  render();
+},30000);
+</script>
+</body>
+</html>

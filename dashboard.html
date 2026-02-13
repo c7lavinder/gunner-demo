@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gunner Engine Logs — Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e17;--card:#131a2b;--card-hover:#1a2340;--border:#1e2a45;--text:#e2e8f0;--text-dim:#64748b;--green:#22c55e;--yellow:#eab308;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(168,85,247,0.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+
+.demo-banner{background:linear-gradient(135deg,#1a1a2e,#16213e);border-bottom:2px solid var(--purple);padding:10px 24px;text-align:center;font-size:14px;font-weight:700;color:var(--purple);letter-spacing:1px}
+.demo-banner a{color:var(--blue);text-decoration:none;margin-left:16px;font-weight:600;font-size:12px}
+.demo-banner a:hover{text-decoration:underline}
+
+.header{position:sticky;top:0;z-index:100;background:rgba(10,14,23,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 24px}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{width:40px;height:40px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 0 20px rgba(59,130,246,0.3)}
+.logo-text h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-text p{font-size:11px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+.header-stats{display:flex;gap:16px;align-items:center}
+.hstat{text-align:center;padding:6px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px}
+.hstat .hnum{font-size:18px;font-weight:700}
+.hstat .hlbl{font-size:10px;color:var(--text-dim);text-transform:uppercase}
+
+.filters{max-width:1200px;margin:0 auto;padding:16px 24px 0;display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:1}
+.filter-btn{padding:8px 16px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.filter-btn:hover{border-color:var(--blue);color:var(--text)}
+.filter-btn.active{background:rgba(59,130,246,0.15);border-color:var(--blue);color:var(--blue)}
+.filter-count{background:rgba(255,255,255,0.1);padding:1px 6px;border-radius:4px;font-size:10px;margin-left:4px}
+
+.logs{max-width:1200px;margin:0 auto;padding:16px 24px 48px;position:relative;z-index:1}
+.log-table{width:100%;border-collapse:collapse}
+.log-table th{text-align:left;padding:10px 12px;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-dim);border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg)}
+.log-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.03);font-size:13px;vertical-align:top}
+.log-table tr:hover{background:rgba(255,255,255,0.02)}
+.log-time{font-size:12px;color:var(--text-dim);white-space:nowrap}
+.log-source{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;white-space:nowrap}
+.log-source.poll{background:rgba(59,130,246,0.12);color:var(--blue)}
+.log-source.hook{background:rgba(168,85,247,0.12);color:var(--purple)}
+.log-source.nurture{background:rgba(34,197,94,0.12);color:var(--green)}
+.log-source.reporting{background:rgba(234,179,8,0.12);color:var(--yellow)}
+.log-source.scheduling{background:rgba(249,115,22,0.12);color:#f97316}
+.log-source.deals{background:rgba(236,72,153,0.12);color:#ec4899}
+.log-source.leadiq{background:rgba(239,68,68,0.12);color:var(--red)}
+.log-source.signals{background:rgba(239,68,68,0.15);color:var(--red)}
+.log-op{font-family:monospace;font-size:12px;color:var(--text-dim)}
+.log-contact{font-size:12px;color:var(--blue)}
+.log-desc{line-height:1.5;max-width:500px}
+.log-desc.highlight{color:var(--green)}
+.log-desc.warning{color:var(--yellow)}
+.log-desc.alert{color:var(--red)}
+
+.new-event{animation:fadeIn 0.5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+@media(max-width:768px){
+  .log-table{display:block}
+  .log-table thead{display:none}
+  .log-table tbody{display:block}
+  .log-table tr{display:block;padding:12px;margin-bottom:8px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+  .log-table td{display:block;padding:4px 0;border:none}
+  .log-table td:first-child::before{content:'Time: ';font-weight:600;color:var(--text-dim)}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">🎯 DEMO — Peak Properties Denver — Engine Logs <a href="index.html">← Control Room</a></div>
+
+<header class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <h1>Gunner Engine — Logs</h1>
+        <p>Peak Properties Denver</p>
+      </div>
+    </div>
+    <div class="header-stats">
+      <div class="hstat"><div class="hnum" id="total-count">0</div><div class="hlbl">Total Events</div></div>
+      <div class="hstat"><div class="hnum" style="color:var(--green)">6</div><div class="hlbl">Engines Live</div></div>
+      <div class="hstat"><div class="hnum" style="color:var(--blue)">LIVE</div><div class="hlbl">Mode</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="filters" id="filters"></div>
+<div class="logs"><table class="log-table"><thead><tr><th>Time</th><th>Source</th><th>Operation</th><th>Contact</th><th>Description</th></tr></thead><tbody id="log-body"></tbody></table></div>
+
+<script>
+function todayAt(h,m,s){const d=new Date();d.setHours(h,m,s||0,0);return d;}
+function fmtTime(d){return d.toLocaleString([],{month:'numeric',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit'});}
+
+const sources={
+  poll:{label:'🔄 Poll',cls:'poll'},
+  hook:{label:'📨 Hook',cls:'hook'},
+  nurture:{label:'🌱 Nurture',cls:'nurture'},
+  reporting:{label:'📊 Reporting',cls:'reporting'},
+  scheduling:{label:'⏰ Scheduling',cls:'scheduling'},
+  deals:{label:'📄 Deals',cls:'deals'},
+  leadiq:{label:'🧠 Lead IQ',cls:'leadiq'},
+  signals:{label:'📡 Signals',cls:'signals'}
+};
+
+const logs=[
+  {t:todayAt(14,55,12),src:'reporting',op:'kpi_snapshot',contact:'—',desc:'Daily team KPI: 87 calls, 23 conversations, 4 appointments set, 2 offers made. Call volume +12% vs last Thursday.',style:'highlight'},
+  {t:todayAt(14,50,44),src:'nurture',op:'followup_sms_sent',contact:'Robert Williams',desc:'Sent follow-up SMS to Robert Williams (4521 Elm St): "Hi Robert, just following up on our conversation. I can have an offer to you by Friday."'},
+  {t:todayAt(14,48,31),src:'leadiq',op:'lead_scored',contact:'Robert Williams',desc:'Scored Robert Williams at 4521 Elm St as HOT (92) — factors: Motivation (inherited/probate), Timeline (30 days), Condition (needs work), Vacant. Assigning to Marcus Rivera.',style:'highlight'},
+  {t:todayAt(14,47,15),src:'poll',op:'poll_conversation_call',contact:'Robert Williams',desc:'Call message in conversation with Robert Williams. Marcus Rivera → 4521 Elm St.'},
+  {t:todayAt(14,47,10),src:'hook',op:'gunner_call_graded',contact:'Robert Williams',desc:'Gunner graded call for Robert Williams — Grade: B. Seller motivated, inherited property, wants to sell within 30 days. Tagged: Probate, Hot.',style:'highlight'},
+  {t:todayAt(14,45,22),src:'nurture',op:'reengagement_triggered',contact:'Thomas Grant',desc:'🔥 RE-ENGAGEMENT: Thomas Grant (6200 Poplar Ave) — Seller said "call me back in February" on Dec 12. It\'s February. Auto-triggered callback for Marcus Rivera.',style:'highlight'},
+  {t:todayAt(14,41,08),src:'signals',op:'missed_opportunity',contact:'David Kim',desc:'⚠️ MISSED OPPORTUNITY: David Kim (5540 Pine Ridge) last called 14 days ago. Was WARM, now going cold. No follow-up scheduled.',style:'warning'},
+  {t:todayAt(14,38,55),src:'deals',op:'deal_package_update',contact:'—',desc:'Deal package for 1847 Oak Ave is 85% complete. ✅ Comps (3), ✅ ARV ($310K), ✅ Title clean. ❌ Missing: repair estimate, photos. Nudging Jake Thompson.',style:'warning'},
+  {t:todayAt(14,35,20),src:'poll',op:'data_hygiene',contact:'Robert Williams',desc:'Merged duplicate contacts: "Rob Williams" and "Robert Williams" — same phone, same property (4521 Elm St).'},
+  {t:todayAt(14,32,40),src:'hook',op:'am_call_processed',contact:'Sandra Miller',desc:'Jake Thompson discussed offer terms with Sandra Miller for 1592 Birch Rd. Seller counter: $185K. Our MAO: $172K. Spread: $13K.'},
+  {t:todayAt(14,30,15),src:'deals',op:'contract_reminder',contact:'—',desc:'Contract reminder: 1847 Oak Ave seller hasn\'t opened email yet. Auto-reminder queued for 24h.',style:'warning'},
+  {t:todayAt(14,24,18),src:'leadiq',op:'lead_scored',contact:'Lisa Park',desc:'Scored Lisa Park at 3847 Maple Dr as WARM (61) — factors: Considering agent (risk), moderate condition, flexible timeline. Needs nurture.'},
+  {t:todayAt(14,22,33),src:'poll',op:'poll_conversation_call',contact:'Lisa Park',desc:'Call message in conversation with Lisa Park. Sarah Chen → 3847 Maple Dr.'},
+  {t:todayAt(14,22,30),src:'hook',op:'gunner_call_graded',contact:'Lisa Park',desc:'Gunner graded call for Lisa Park — Grade: C+. Seller considering listing with agent, not urgent.'},
+  {t:todayAt(14,20,45),src:'poll',op:'mls_match_found',contact:'—',desc:'New MLS match: 4401 Elm St — 3BR/1BA, listed $189K, estimated ARV $280K. Distressed photos. Alert sent to team.',style:'highlight'},
+  {t:todayAt(14,12,30),src:'signals',op:'sop_violation',contact:'Marcus Rivera',desc:'⚠️ SOP VIOLATION: Marcus Rivera moved lead to "Appointment Set" without logging call notes. Auto-reminder sent.',style:'warning'},
+  {t:todayAt(14,10,55),src:'scheduling',op:'callback_captured',contact:'Robert Williams',desc:'Callback captured from voicemail: Robert Williams — "Can you call me back around 4:30? Want to talk about the offer." Scheduled for Marcus Rivera.',style:'highlight'},
+  {t:todayAt(14,10,10),src:'nurture',op:'followup_reminder',contact:'Lisa Park',desc:'Follow-up reminder sent to Sarah Chen about Lisa Park (3847 Maple Dr) — 36 hours no contact, WARM lead.',style:'warning'},
+  {t:todayAt(14,00,30),src:'deals',op:'distribution_update',contact:'—',desc:'Buyer engagement update: 892 Pine St — 4/12 opened (33%), 1 offer submitted ($165K from BuyerCo LLC). Follow-up blast scheduled.'},
+  {t:todayAt(13,57,10),src:'leadiq',op:'lead_scored',contact:'James Foster',desc:'Scored James Foster at 901 Walnut St as HOT (88) — factors: Absentee owner, vacant 8mo, out-of-state, highly motivated. Assigning to Marcus Rivera.',style:'highlight'},
+  {t:todayAt(13,55,42),src:'poll',op:'poll_conversation_call',contact:'James Foster',desc:'Call message in conversation with James Foster. Marcus Rivera → 901 Walnut St.'},
+  {t:todayAt(13,55,38),src:'hook',op:'gunner_call_graded',contact:'James Foster',desc:'Gunner graded call for James Foster — Grade: A. Vacant property, seller lives out of state, highly motivated. Tagged: Absentee, Hot.',style:'highlight'},
+  {t:todayAt(13,30,00),src:'deals',op:'contract_generated',contact:'—',desc:'Contract generated for 1847 Oak Ave — Purchase price: $178,000. Sent to seller for e-signature via DocuSign.'},
+  {t:todayAt(13,20,15),src:'poll',op:'ppl_dispute_filed',contact:'—',desc:'Dispute filed on Leadzolo: Lead #4892 — wrong number, confirmed disconnected after 3 attempts. $45 refund pending.'},
+  {t:todayAt(13,15,00),src:'signals',op:'at_risk_deal',contact:'Sandra Miller',desc:'🔥 AT RISK: Sandra Miller (1592 Birch Rd) has a competing offer. Jake Thompson needs to submit by EOD or we lose it.',style:'alert'},
+  {t:todayAt(13,00,30),src:'nurture',op:'sequence_advanced',contact:'James Foster',desc:'Sequence advanced: James Foster moved from "Day 1 Follow-up" to "Day 3 Check-in".'},
+  {t:todayAt(13,00,00),src:'scheduling',op:'appointment_reminder',contact:'Sandra Miller',desc:'Appointment reminder: Jake Thompson walkthrough at 2:00 PM — 1592 Birch Rd with Sandra Miller. Confirmation sent ✅.',style:'highlight'},
+  {t:todayAt(12,30,00),src:'poll',op:'voicemail_processed',contact:'Unknown',desc:'Voicemail processed: Unknown caller asking about selling 9901 Oak Dr. New lead created, assigned to Sarah Chen.'},
+  {t:todayAt(12,20,15),src:'poll',op:'data_autofill',contact:'Michael Torres',desc:'Auto-filled missing property address for Michael Torres using voicemail transcript: 2103 Cedar Lane.'},
+  {t:todayAt(12,15,00),src:'scheduling',op:'callback_scheduled',contact:'Robert Williams',desc:'Callback scheduled: Robert Williams requested 4:30 PM. Assigned to Marcus Rivera.'},
+  {t:todayAt(12,00,00),src:'reporting',op:'weekly_report',contact:'—',desc:'Weekly performance report generated. Highlights: Call volume up 15%, appointment-to-offer ratio improved to 50%, Marcus Rivera top performer.',style:'highlight'},
+  {t:todayAt(11,50,20),src:'signals',op:'compliance_check',contact:'Jake Thompson',desc:'✅ COMPLIANT: Jake Thompson completed all required fields before advancing 1847 Oak Ave to "Under Contract".'},
+  {t:todayAt(11,45,00),src:'poll',op:'ppl_dispute_filed',contact:'—',desc:'Dispute filed on PropertyLeads: Lead #7721 — property already under contract (verified via public records). $55 refund pending.'},
+  {t:todayAt(11,35,12),src:'leadiq',op:'lead_scored',contact:'Sandra Miller',desc:'Scored Sandra Miller at 1592 Birch Rd as WARM (67) — factors: Pre-foreclosure, competing offer (risk), timeline pressure.'},
+  {t:todayAt(11,30,45),src:'hook',op:'am_call_processed',contact:'Sandra Miller',desc:'Jake Thompson called Sandra Miller re: 1592 Birch Rd. Grade: B+. Pre-foreclosure, wants to avoid auction. Walkthrough scheduled.'},
+  {t:todayAt(11,30,00),src:'deals',op:'deal_distributed',contact:'—',desc:'Deal distributed: 892 Pine St package sent to 12 matched buyers (Denver metro, SFR, <$200K). Tracking engagement.',style:'highlight'},
+  {t:todayAt(11,20,30),src:'signals',op:'worth_a_look',contact:'Patricia Hayes',desc:'👀 WORTH A LOOK: Patricia Hayes (7720 Spruce Dr) — just paid property taxes late. Possible distress signal. No one has reached out.',style:'warning'},
+  {t:todayAt(11,10,00),src:'poll',op:'mls_match_found',contact:'—',desc:'New MLS match: 7890 Birch Blvd — 4BR/2BA, listed $210K, estimated ARV $340K. Estate sale. Alert sent.'},
+  {t:todayAt(11,00,00),src:'deals',op:'comps_pulled',contact:'—',desc:'Comps auto-pulled for 1847 Oak Ave: 1823 Oak Ave ($295K, 45d), 1901 Oak Ave ($318K, 60d), 1790 Maple ($305K, 30d). ARV: $310K.'},
+  {t:todayAt(10,50,18),src:'leadiq',op:'lead_scored',contact:'Michael Torres',desc:'Scored Michael Torres at 2103 Cedar Lane as WARM (58) — factors: Downsizing, no urgency, good condition. Long-term nurture.'},
+  {t:todayAt(10,45,30),src:'poll',op:'poll_conversation_call',contact:'Michael Torres',desc:'Call message in conversation with Michael Torres. Sarah Chen → 2103 Cedar Lane.'},
+  {t:todayAt(10,45,25),src:'hook',op:'gunner_call_graded',contact:'Michael Torres',desc:'Gunner graded call for Michael Torres — Grade: B. Summary: Downsizing, flexible on timeline.'},
+  {t:todayAt(10,22,00),src:'nurture',op:'afterhours_lead',contact:'Angela Davis',desc:'After-hours lead (last night): Angela Davis called at 10:22 PM about 8890 Willow Way. Voicemail captured, queued for Marcus Rivera.',style:'highlight'},
+  {t:todayAt(10,15,00),src:'poll',op:'voicemail_spam',contact:'—',desc:'Voicemail processed: Spam/robocall detected. Auto-archived.'},
+  {t:todayAt(10,10,00),src:'hook',op:'am_call_processed',contact:'Robert Williams',desc:'Jake Thompson called Robert Williams re: 4521 Elm St follow-up. Seller wants offer by Friday.'},
+  {t:todayAt(10,00,00),src:'nurture',op:'nurture_slow_scan',contact:'—',desc:'Nurture slow scan: 14 sellers in "call back later" queue. Next triggers: 3 in March, 5 in April.'},
+  {t:todayAt(10,00,00),src:'reporting',op:'chat_digest',contact:'—',desc:'Morning digest: 3 action items — Marcus call Robert Williams by Friday, Jake submit offer 1592 Birch Rd, Sarah follow up Lisa Park.'},
+  {t:todayAt(9,47,00),src:'nurture',op:'afterhours_lead',contact:'Michael Torres',desc:'After-hours lead (last night): Michael Torres messaged at 9:47 PM about 2103 Cedar Lane. Sent acknowledgment + queued for morning priority callback.',style:'highlight'},
+  {t:todayAt(9,45,15),src:'signals',op:'sop_violation',contact:'Sarah Chen',desc:'⚠️ SOP VIOLATION: Sarah Chen has 3 leads in "New" status >48 hours. Auto-escalation triggered.',style:'warning'},
+  {t:todayAt(9,30,00),src:'poll',op:'mls_match_found',contact:'—',desc:'New MLS match: 2200 Cedar Ct — 2BR/1BA, listed $145K, estimated ARV $215K. Vacant. Alert sent.'},
+  {t:todayAt(9,30,00),src:'poll',op:'data_hygiene',contact:'—',desc:'Standardized 12 phone number formats to E.164.'},
+  {t:todayAt(9,15,22),src:'poll',op:'poll_conversation_call',contact:'Karen White',desc:'Call message in conversation with Karen White. Marcus Rivera → 3310 Ash Ct.'},
+  {t:todayAt(9,15,18),src:'hook',op:'gunner_call_graded',contact:'Karen White',desc:'Gunner graded call for Karen White — Grade: D. Just looking for a free estimate, no motivation.'},
+  {t:todayAt(9,00,00),src:'poll',op:'ppl_dispute_won',contact:'—',desc:'Dispute won: MotivatedSellers Lead #3301 — $65 refunded. Reason: duplicate lead.',style:'highlight'},
+  {t:todayAt(9,00,00),src:'nurture',op:'nurture_fast_scan',contact:'—',desc:'Nurture fast scan complete: 7 active sequences, 0 new triggers.'},
+  {t:todayAt(8,45,00),src:'scheduling',op:'appointment_confirmed',contact:'—',desc:'Appointment confirmed: Jake Thompson at 10:00 AM — 1847 Oak Ave walkthrough. Seller confirmed via SMS ✅.'},
+  {t:todayAt(8,35,00),src:'poll',op:'voicemail_processed',contact:'Angela Davis',desc:'Voicemail processed: Angela Davis callback request for morning. Routed to Sarah Chen.'},
+  {t:todayAt(8,30,00),src:'nurture',op:'morning_handoff',contact:'—',desc:'Morning handoff complete: 2 after-hours leads distributed. Marcus Rivera → Michael Torres, Sarah Chen → Angela Davis.',style:'highlight'},
+  {t:todayAt(8,15,00),src:'scheduling',op:'schedule_optimized',contact:'—',desc:'Schedule optimized: Jake Thompson — 1847 Oak Ave at 10:00 AM, 1592 Birch Rd at 2:00 PM. Route: 12 min drive.'},
+  {t:todayAt(8,00,00),src:'reporting',op:'daily_digest',contact:'—',desc:'Daily digest sent to team Slack: Yesterday\'s results — 4 appointments set, 2 offers pending, 1 deal in packaging.'},
+  {t:todayAt(8,00,00),src:'poll',op:'market_update',contact:'—',desc:'Market update: Denver metro median sale price $412K (-2.3% MoM). Inventory up 8%. Days on market: 34 avg.'},
+  {t:todayAt(7,55,00),src:'signals',op:'lost_deal_detected',contact:'—',desc:'🚨 LOST DEAL DETECTED: 892 Pine St sold to competitor 3 days ago. We made no offer. Timeline gap: 6 days from qualification to loss. UNVERIFIED — no deed transfer found yet.',style:'alert'},
+  {t:todayAt(7,50,00),src:'poll',op:'poll_cycle_complete',contact:'—',desc:'Poll cycle #1: Engine startup. All 6 engines initialized. 0 errors.'},
+];
+
+const filterDefs=[
+  {id:'all',label:'All'},
+  {id:'poll',label:'Poll'},
+  {id:'hook',label:'Webhook'},
+  {id:'nurture',label:'Nurture'},
+  {id:'reporting',label:'Reporting'},
+  {id:'scheduling',label:'Scheduling'},
+  {id:'deals',label:'Deals'},
+  {id:'leadiq',label:'Lead IQ'},
+  {id:'signals',label:'Signals'}
+];
+
+let activeFilter='all';
+
+function renderFilters(){
+  const el=document.getElementById('filters');
+  el.innerHTML='';
+  filterDefs.forEach(f=>{
+    const count=f.id==='all'?logs.length:logs.filter(l=>l.src===f.id).length;
+    const btn=document.createElement('button');
+    btn.className='filter-btn'+(activeFilter===f.id?' active':'');
+    btn.innerHTML=f.label+'<span class="filter-count">'+count+'</span>';
+    btn.onclick=()=>{activeFilter=f.id;renderFilters();renderLogs();};
+    el.appendChild(btn);
+  });
+}
+
+function renderLogs(){
+  const body=document.getElementById('log-body');
+  const filtered=activeFilter==='all'?logs:logs.filter(l=>l.src===activeFilter);
+  body.innerHTML='';
+  filtered.forEach(l=>{
+    const s=sources[l.src];
+    const tr=document.createElement('tr');
+    const descCls=l.style==='highlight'?'highlight':l.style==='warning'?'warning':l.style==='alert'?'alert':'';
+    tr.innerHTML=`<td class="log-time">${fmtTime(l.t)}</td>
+      <td><span class="log-source ${s.cls}">${s.label}</span></td>
+      <td class="log-op">${l.op}</td>
+      <td class="log-contact">${l.contact}</td>
+      <td class="log-desc ${descCls}">${l.desc}</td>`;
+    body.appendChild(tr);
+  });
+  document.getElementById('total-count').textContent=logs.length;
+}
+
+renderFilters();
+renderLogs();
+
+// Simulate new events appearing every 30s
+const simEvents=[
+  {src:'poll',op:'poll_cycle_complete',contact:'—',desc:'Poll cycle #14: 2 events detected in 712ms'},
+  {src:'nurture',op:'nurture_fast_scan',contact:'—',desc:'Nurture fast scan: 7 active sequences, 0 new triggers in 890ms'},
+  {src:'scheduling',op:'scheduling_scan',contact:'—',desc:'Scheduling scan: 3 appointments tracked, 0 changes in 445ms'},
+  {src:'poll',op:'poll_conversation_call',contact:'Marcus Rivera',desc:'New call detected: Marcus Rivera outbound to Robert Williams (4521 Elm St)'},
+  {src:'nurture',op:'followup_check',contact:'—',desc:'Follow-up check: All sequences on schedule. Next action in 47 minutes.'},
+];
+let simIdx=0;
+setInterval(()=>{
+  const evt=simEvents[simIdx%simEvents.length];
+  simIdx++;
+  const newLog={t:new Date(),src:evt.src,op:evt.op,contact:evt.contact,desc:evt.desc};
+  logs.unshift(newLog);
+  renderFilters();
+  renderLogs();
+  // Animate first row
+  const firstRow=document.querySelector('#log-body tr');
+  if(firstRow)firstRow.classList.add('new-event');
+},30000);
+</script>
+</body>
+</html>
