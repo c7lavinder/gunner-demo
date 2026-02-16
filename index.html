@@ -127,10 +127,10 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
       <div class="connection-badge">🟢 Connected to Engine</div>
       <span style="font-size:11px;color:var(--text-dim)" id="last-refresh"></span>
       <div class="stats-bar">
-        <div class="stat"><div class="dot green"></div><div><div class="num">18</div><div class="label">Online</div></div></div>
-        <div class="stat"><div class="dot yellow"></div><div><div class="num">2</div><div class="label">Standby</div></div></div>
+        <div class="stat"><div class="dot green"></div><div><div class="num">25</div><div class="label">Online</div></div></div>
+        <div class="stat"><div class="dot yellow"></div><div><div class="num">3</div><div class="label">Standby</div></div></div>
         <div class="stat"><div class="dot red"></div><div><div class="num">0</div><div class="label">Offline</div></div></div>
-        <div class="stat"><div><div class="num">20</div><div class="label">Total Bots</div></div></div>
+        <div class="stat"><div><div class="num">28</div><div class="label">Total Bots</div></div></div>
       </div>
     </div>
   </div>
@@ -185,7 +185,278 @@ function fmtTime(d){return d.toLocaleTimeString([],{hour:'numeric',minute:'2-dig
 
 const engines = [
   {
-    id:'transcript', name:'Transcript Processing', subtitle:'3 bots · 142 events · Last scan: 3m ago',
+    id:'lead-iq', name:'Lead Intelligence', subtitle:'3 bots · 52 events · Last scan: 2m ago',
+    bots:[
+      {name:'Lead IQ Scorer',icon:'🧠',desc:'AI-powered lead scoring. Analyzes source, motivation, timeline, condition, and price factors to assign HOT/WARM ratings. No COLD — every lead gets worked.',
+       lastAction:'4m ago',preview:'5 leads scored — 2 HOT, 3 WARM',
+       metrics:[{v:'5',l:'Scored Today'},{v:'2',l:'HOT'},{v:'3',l:'WARM'},{v:'0',l:'COLD'}],
+       activity:[
+         {text:'🔥 HOT — Robert Williams (4521 Elm St): Score 92. Factors: Inherited/probate ✓, Timeline <30 days ✓, Vacant ✓, Motivated ✓.',time:todayAt(14,48),color:'red'},
+         {text:'🔥 HOT — James Foster (901 Walnut St): Score 88. Factors: Absentee owner ✓, Vacant 8mo ✓, Out-of-state ✓.',time:todayAt(13,57),color:'red'},
+         {text:'🟡 WARM — Lisa Park (3847 Maple Dr): Score 61. Considering agent (risk), moderate condition.',time:todayAt(14,24),color:'yellow'},
+       ]},
+      {name:'Lead Watchdog',icon:'🐕',desc:'Monitors new lead SLA — flags untouched leads at 15 min, escalates at 30 min. Ensures no PPL lead ($125-150) gets missed.',
+       lastAction:'1m ago',preview:'0 SLA breaches today',
+       metrics:[{v:'0',l:'SLA Breaches'},{v:'15min',l:'Alert Threshold'},{v:'30min',l:'Escalation'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'✅ All leads contacted within SLA. Average first contact: 8 minutes.',time:todayAt(14,30),color:'green'},
+         {text:'⚠️ Near miss: Sandra Miller (1592 Birch Rd) — first contact at 14 min. SLA is 15 min.',time:todayAt(11,20),color:'yellow'},
+       ]},
+      {name:'New Lead Responder',icon:'⚡',desc:'Instant after-hours response. Fires SMS immediately when leads come in outside business hours, queues call task for next business day 9 AM.',
+       lastAction:'14h ago',preview:'2 after-hours leads handled last night',
+       metrics:[{v:'2',l:'After-Hours Today'},{v:'🟢',l:'Status'},{v:'Standby',l:'Next Active'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'After-hours lead: Michael Torres messaged at 9:47 PM. Sent auto-SMS + queued call task for Marcus Rivera at 9 AM.',time:todayAt(9,47),color:'purple'},
+         {text:'After-hours lead: Angela Davis called at 10:22 PM. Voicemail captured, call task created for morning.',time:todayAt(10,22),color:'purple'},
+       ]}
+    ]
+  },
+  {
+    id:'crm-scanner', name:'CRM Scanner', subtitle:'4 bots · 89 events · Last scan: 1m ago',
+    bots:[
+      {name:'Pipeline Signals',icon:'📡',desc:'14 detection rules across 3 tiers (Missed/At Risk/Worth a Look). Scans pipeline health hourly.',
+       lastAction:'1m ago',preview:'3 signals: 1 missed opp, 1 at risk, 1 worth a look',
+       metrics:[{v:'3',l:'Signals Today'},{v:'🟢',l:'Status'},{v:'1m ago',l:'Last Scan'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'⚠️ MISSED: David Kim (5540 Pine Ridge) last called 14 days ago. Was WARM, going cold.',time:todayAt(14,41),color:'red'},
+         {text:'🔥 AT RISK: Sandra Miller (1592 Birch Rd) has competing offer. Submit by EOD.',time:todayAt(13,15),color:'red'},
+         {text:'👀 WORTH A LOOK: Patricia Hayes (7720 Spruce Dr) — paid property taxes late. Distress signal.',time:todayAt(11,20),color:'yellow'},
+       ],
+       signal:{title:'🚨 LOST DEAL DETECTED',text:'892 Pine St sold to competitor 3 days ago. We made no offer. Timeline gap: 6 days.'}
+      },
+      {name:'Unread Alert Monitor',icon:'📬',desc:'Flags team members with 3+ unread conversations. Prevents leads from going cold while sitting in inbox.',
+       lastAction:'5m ago',preview:'Sarah Chen: 4 unread conversations',
+       metrics:[{v:'1',l:'Team Flagged'},{v:'4',l:'Unread Convos'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'⚠️ Sarah Chen has 4 unread conversations (oldest: 6 hours). Nudge sent.',time:todayAt(14,40),color:'yellow'},
+         {text:'✅ Marcus Rivera: 0 unread. All caught up.',time:todayAt(14,40),color:'green'},
+       ]},
+      {name:'Ghosted Lead Detector',icon:'👻',desc:'Identifies leads with 4+ outbound attempts, 0 inbound replies over 10+ days. Separates truly ghosted from just slow.',
+       lastAction:'1h ago',preview:'2 ghosted leads detected',
+       metrics:[{v:'2',l:'Ghosted Today'},{v:'4+',l:'Min Attempts'},{v:'10d+',l:'Min Duration'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'👻 GHOSTED: Tom Bradley (2240 Oak St) — 6 outbound calls, 3 SMS, 0 replies over 18 days. Recommend: final attempt or archive.',time:todayAt(13,00),color:'red'},
+         {text:'👻 GHOSTED: Nancy Clark (8801 Pine Ave) — 4 calls, 2 SMS, 0 replies over 12 days.',time:todayAt(13,00),color:'red'},
+       ]},
+      {name:'Walkthrough SLA',icon:'🏃',desc:'Monitors time between appointment set and walkthrough completion. Flags delays that could lose motivated sellers.',
+       lastAction:'30m ago',preview:'All walkthroughs on time',
+       metrics:[{v:'0',l:'SLA Breaches'},{v:'3',l:'Scheduled'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'✅ Jake Thompson: 1592 Birch Rd walkthrough completed on time. 2 days from apt set to walkthrough.',time:todayAt(14,30),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'nurture', name:'Nurture & Timing', subtitle:'5 bots · 203 events · Last scan: 30s ago',
+    bots:[
+      {name:'Follow Up Bot',icon:'🔄',desc:'Full lifecycle replacement for follow-up workflows. Auto-discovers dispositions from activity, manages 1-month/4-month/1-year nurture cycles.',
+       lastAction:'30s ago',preview:'7 active sequences, 2 after-hours queued',
+       metrics:[{v:'7',l:'Active Sequences'},{v:'🟢',l:'Status'},{v:'30s ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Sent follow-up SMS to Robert Williams: "Hi Robert, just following up — I can have an offer to you by Friday."',time:todayAt(14,50),color:'green'},
+         {text:'Reminder sent to Sarah Chen: Lisa Park — 36 hours no contact, WARM lead.',time:todayAt(14,10),color:'yellow'},
+         {text:'Sequence advanced: James Foster moved from "Day 1" to "Day 3 Check-in".',time:todayAt(13,00),color:'blue'},
+       ]},
+      {name:'Workflow Shadow',icon:'🔮',desc:'Shadows all 3 follow-up workflows in parallel with A/B SMS template rotation. Ready to replace when flipped live.',
+       lastAction:'5m ago',preview:'3 workflows shadowed, A/B testing 6 templates',
+       metrics:[{v:'3',l:'Workflows'},{v:'6',l:'A/B Templates'},{v:'🟢',l:'Shadow Mode'},{v:'DRY RUN',l:'Mode'}],
+       activity:[
+         {text:'Shadow: 1-Month workflow would send "Hey {name}, just checking in on your property..." — Template A (casual) vs Template B (professional).',time:todayAt(14,45),color:'blue'},
+         {text:'Shadow: 4-Month re-engagement would trigger for 12 contacts this week.',time:todayAt(12,00),color:'blue'},
+       ]},
+      {name:'After-Hours Bot',icon:'🌙',desc:'Engages inbound leads during off-hours with intelligent responses and scheduled callbacks.',
+       lastAction:'14h ago',preview:'2 leads handled overnight',
+       metrics:[{v:'2',l:'Leads Queued'},{v:'🟢',l:'Status'},{v:'Standby',l:'Next Active'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Morning handoff: 2 after-hours leads distributed. Marcus → Michael Torres, Sarah → Angela Davis.',time:todayAt(8,30),color:'green'},
+       ]},
+      {name:'Seller Re-engagement',icon:'🔁',desc:'Re-engages declined sellers with timed follow-ups when their "call back" date arrives.',
+       lastAction:'2m ago',preview:'1 re-engagement triggered',
+       metrics:[{v:'1',l:'Triggered Today'},{v:'14',l:'In Queue'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🔥 Thomas Grant (6200 Poplar Ave) — said "call me in February" on Dec 12. It\'s February. Callback triggered.',time:todayAt(14,45),color:'green'},
+       ]},
+      {name:'Appointment Bot',icon:'📅',desc:'Catches no-shows, sends confirmations, manages reschedules. Integrates with team calendars.',
+       lastAction:'18m ago',preview:'3 appointments today, 0 no-shows',
+       metrics:[{v:'3',l:'Appts Today'},{v:'0',l:'No-Shows'},{v:'1',l:'Callbacks'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Confirmation sent: Jake Thompson walkthrough 2:00 PM — 1592 Birch Rd. Seller confirmed ✅.',time:todayAt(13,00),color:'green'},
+         {text:'Callback scheduled: Robert Williams → Marcus Rivera at 4:30 PM.',time:todayAt(12,15),color:'blue'},
+       ]}
+    ]
+  },
+  {
+    id:'scheduling', name:'Scheduling', subtitle:'3 bots · 34 events · Last scan: 2m ago',
+    bots:[
+      {name:'Scheduling Coordinator',icon:'🗓️',desc:'Manages AM availability, prevents double-booking, detects calendar mismatches between CRM and team schedules.',
+       lastAction:'2m ago',preview:'3 appointments today, 0 conflicts',
+       metrics:[{v:'3',l:'Appts Today'},{v:'0',l:'Conflicts'},{v:'1',l:'Callbacks'},{v:'0',l:'Cancellations'}],
+       activity:[
+         {text:'Schedule optimized: Jake Thompson — 10 AM and 2 PM walkthroughs, 12 min drive between.',time:todayAt(8,15),color:'green'},
+       ]},
+      {name:'Callback Capture Bot',icon:'📲',desc:'Monitors voicemails and missed calls for callback requests. Auto-creates call tasks for the right team member.',
+       lastAction:'45m ago',preview:'1 callback captured from voicemail',
+       metrics:[{v:'1',l:'Captured Today'},{v:'🟢',l:'Status'},{v:'45m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Callback captured: Robert Williams — "Can you call me back around 4:30?" Scheduled for Marcus Rivera.',time:todayAt(14,10),color:'green'},
+       ]},
+      {name:'Cancellation Handler',icon:'🚫',desc:'Detects appointment cancellations and immediately re-engages the lead with reschedule options.',
+       lastAction:'2d ago',preview:'0 cancellations today',
+       metrics:[{v:'0',l:'Cancellations'},{v:'🟢',l:'Status'},{v:'Standby',l:'Waiting'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'No cancellations today. Last handled: Monday — auto-sent reschedule link within 2 minutes.',time:todayAt(9,0),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'deals', name:'Documents & Deals', subtitle:'3 bots · 28 events · Last scan: 8m ago',
+    bots:[
+      {name:'Contract Bot',icon:'📝',desc:'Monitors Under Contract stage. Tracks signature status, deadlines, and closing timeline.',
+       lastAction:'1h ago',preview:'1 contract sent, awaiting signature',
+       metrics:[{v:'1',l:'Contracts Sent'},{v:'0',l:'Signed Today'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Contract generated for 1847 Oak Ave — $178,000. Sent for e-signature. Status: Awaiting.',time:todayAt(13,30),color:'blue'},
+         {text:'Reminder queued: seller hasn\'t opened email yet. Auto-follow-up in 24h.',time:todayAt(14,30),color:'yellow'},
+       ]},
+      {name:'Deal Packaging Bot',icon:'📦',desc:'Scores deal completeness. Auto-generates PDF + email template when ready. Signals "ready to market" for buyer distribution.',
+       lastAction:'22m ago',preview:'1847 Oak Ave — 85% complete, missing: repairs, photos',
+       metrics:[{v:'1',l:'In Progress'},{v:'85%',l:'Completeness'},{v:'2',l:'Items Missing'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'📦 1847 Oak Ave: 85% complete. ✅ Comps (3), ✅ ARV ($310K), ✅ Title clean. ❌ Missing: repair estimate, photos. Nudging Jake.',time:todayAt(14,38),color:'yellow'},
+         {text:'PDF would be generated here — all data ready except repairs + photos.',time:todayAt(14,38),color:'blue'},
+       ]},
+      {name:'Deal Distribution Bot',icon:'🚀',desc:'Tier-based buyer matching (verified funding, purchase history, buybox fit). Tier 1 gets 2-hour head start.',
+       lastAction:'3h ago',preview:'892 Pine St → 12 matched buyers, 1 offer received',
+       metrics:[{v:'1',l:'Deals Distributed'},{v:'12',l:'Buyers Reached'},{v:'4',l:'Views'},{v:'1',l:'Offers'}],
+       activity:[
+         {text:'892 Pine St → 12 matched buyers (T1: 3, T2: 5, T3: 4). 4 views, 1 offer ($165K from BuyerCo LLC).',time:todayAt(11,30),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'buyer-lead-gen', name:'Buyer Lead Gen', subtitle:'5 bots · 47 events · Last scan: 3m ago',
+    bots:[
+      {name:'Schedule Engine',icon:'📅',desc:'Weekly dispo cadence — Mon/Tue exclusive buyer list, Wed public blast, Thu/Fri inbound + buyer hunts. Express lane for urgent deals.',
+       lastAction:'3m ago',preview:'Today: Public Blast day — 2 deals pushed everywhere',
+       metrics:[{v:'Wed',l:'Today\'s Phase'},{v:'2',l:'Deals Pushed'},{v:'0',l:'Express Lane'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'📅 Wednesday = PUBLIC BLAST. Pushing 2 deals to all channels: InvestorLift, Mevlo, Facebook, email blast.',time:todayAt(9,00),color:'green'},
+         {text:'892 Pine St: Mon/Tue exclusive → 4 buyer list responses. Now going public.',time:todayAt(9,01),color:'blue'},
+         {text:'1847 Oak Ave: Held back — only 85% packaged. Will push when complete.',time:todayAt(9,01),color:'yellow'},
+       ]},
+      {name:'FAQ Auto-Responder',icon:'💬',desc:'Auto-answers repetitive buyer questions (ARV, repairs, access, price, beds/baths) from deal data. Dispo Mgnr only handles negotiation.',
+       lastAction:'12m ago',preview:'8 questions auto-answered, 2 escalated to Maria',
+       metrics:[{v:'8',l:'Auto-Answered'},{v:'2',l:'Escalated'},{v:'80%',l:'Auto Rate'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Auto-answered: "What\'s the ARV?" → "ARV is $310,000 based on recent comps in the area."',time:todayAt(14,30),color:'green'},
+         {text:'Auto-answered: "Is it occupied?" → "Property is currently vacant with immediate access."',time:todayAt(14,15),color:'green'},
+         {text:'🔀 ESCALATED to Maria: "Can we do $160K and close in 10 days?" → Negotiation, needs human.',time:todayAt(13,45),color:'yellow'},
+         {text:'Auto-answered: "Beds/baths?" → "3 bed / 2 bath, 1,850 sqft."',time:todayAt(13,20),color:'green'},
+       ]},
+      {name:'Buyer Hunt Support',icon:'🎯',desc:'Generates outreach lists with pre-written scripts for listing agents. Tracks contacts across deals, prevents duplicate outreach.',
+       lastAction:'1h ago',preview:'Generated 8-contact outreach list for 892 Pine St',
+       metrics:[{v:'8',l:'Contacts Found'},{v:'3',l:'Agents'},{v:'5',l:'Investors'},{v:'0',l:'Duplicates'}],
+       activity:[
+         {text:'Outreach list generated for 892 Pine St: 3 listing agents (recent flips within 2mi), 5 rental-by-owner contacts from Zillow.',time:todayAt(13,00),color:'green'},
+         {text:'Script generated: "Hey [agent], your client flipped 820 Pine St last month — we have a similar project at 892 Pine St. Interested?"',time:todayAt(13,01),color:'blue'},
+         {text:'Duplicate prevented: John Smith already contacted about 2 other deals. Skipped.',time:todayAt(13,02),color:'blue'},
+       ]},
+      {name:'48-Hour Clock',icon:'⏰',desc:'Tracks marketing start for every deal. Escalating alerts at 12h/24h/36h/48h if no buyer interest.',
+       lastAction:'30m ago',preview:'892 Pine St: 38h elapsed, 4 interested buyers — on track',
+       metrics:[{v:'1',l:'Active Clocks'},{v:'38h',l:'Elapsed'},{v:'4',l:'Interested'},{v:'✅',l:'On Track'}],
+       activity:[
+         {text:'⏰ 892 Pine St: 38h since marketing start. 4 buyer inquiries, 1 offer. On track — no escalation needed.',time:todayAt(14,00),color:'green'},
+         {text:'12h check: 892 Pine St — 2 views, 0 inquiries. Logged, watching.',time:todayAt(2,00),color:'blue'},
+         {text:'24h check: 892 Pine St — 8 views, 2 inquiries. Good momentum.',time:todayAt(14,00),color:'green'},
+       ]},
+      {name:'Response Tracker',icon:'📊',desc:'Scores buyer quality (funding, speed, repeat buyer). Source attribution across platforms. Auto-manages buyer pipeline stages.',
+       lastAction:'15m ago',preview:'4 buyers scored — 1 Tier 1, 2 Tier 2, 1 tire-kicker',
+       metrics:[{v:'4',l:'Buyers Scored'},{v:'1',l:'Tier 1'},{v:'2',l:'Tier 2'},{v:'75%',l:'Quality Rate'}],
+       activity:[
+         {text:'⭐ Tier 1: BuyerCo LLC — proof of funds confirmed, responded in 22 min, made offer at $165K. Source: InvestorLift.',time:todayAt(14,20),color:'green'},
+         {text:'Tier 2: Mike Realty — asked for access, no POF yet. Source: email blast. Score: +3 (asked for access).',time:todayAt(13,50),color:'blue'},
+         {text:'Tier 2: Denver Flips Inc — repeat buyer (bought 2 deals before). Source: Mevlo. Score: +5 (repeat).',time:todayAt(13,30),color:'blue'},
+         {text:'🔻 Tire-kicker: "Just looking, send me everything you have." No follow-up. Score: -2.',time:todayAt(12,00),color:'yellow'},
+       ]}
+    ]
+  },
+  {
+    id:'reporting', name:'Data & Reporting', subtitle:'3 bots · 67 events · Last scan: 5m ago',
+    bots:[
+      {name:'KPI Entry Bot',icon:'📊',desc:'Calculates real KPIs from CRM data — leads, appointments, offers, contracts. Ready to push to spreadsheet.',
+       lastAction:'5m ago',preview:"Today: 87 calls, 23 convos, 4 appts, 2 offers",
+       metrics:[{v:'87',l:'Calls Today'},{v:'23',l:'Conversations'},{v:'4',l:'Appointments'},{v:'2',l:'Offers Made'}],
+       activity:[
+         {text:'KPI snapshot: Marcus Rivera — 47 calls, 4 appointments, 2 offers. Best call: James Foster (Grade A).',time:todayAt(14,55),color:'green'},
+         {text:'Daily total: 87 calls (+12% vs last week), 26% connect rate, 4 appointments.',time:todayAt(14,56),color:'green'},
+       ]},
+      {name:'Report Generator',icon:'📈',desc:'Daily reports at 6pm, weekly Monday 8am, monthly 1st of month. Performance insights and pipeline health.',
+       lastAction:'2h ago',preview:'Weekly report generated and sent',
+       metrics:[{v:'3',l:'Reports This Week'},{v:'🟢',l:'Status'},{v:'2h ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Weekly report: Call volume up 15%, appointment-to-offer ratio 50%, Marcus Rivera top performer.',time:todayAt(12,00),color:'green'},
+       ]},
+      {name:'Team Digest',icon:'💬',desc:'Hourly team activity digest — who\'s active, call volumes, conversation counts.',
+       lastAction:'4h ago',preview:'3 action items captured',
+       metrics:[{v:'3',l:'Action Items'},{v:'🟢',l:'Status'},{v:'4h ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Morning digest: (1) Marcus call Robert Williams by Friday, (2) Jake submit offer on 1592 Birch Rd, (3) Sarah follow up Lisa Park.',time:todayAt(10,00),color:'blue'},
+       ]}
+    ]
+  },
+  {
+    id:'voicemail', name:'Voicemail Processing', subtitle:'1 bot · 12 events · Last scan: 15m ago',
+    bots:[
+      {name:'Voicemail Bot',icon:'🎤',desc:'CallRail integration — polls every 30 min, matches to CRM contacts, classifies urgency, routes to right team member.',
+       lastAction:'15m ago',preview:'4 voicemails processed, 1 priority',
+       metrics:[{v:'4',l:'Processed Today'},{v:'1',l:'Priority'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🔴 PRIORITY: Robert Williams — "Call me back around 4:30 about the offer." Routed to Marcus Rivera.',time:todayAt(14,8),color:'red'},
+         {text:'New lead from voicemail: Unknown caller about 9901 Oak Dr. Contact created, assigned to Sarah Chen.',time:todayAt(12,30),color:'blue'},
+         {text:'Spam detected: robocall. Auto-archived.',time:todayAt(10,15),color:'blue'},
+       ]}
+    ]
+  },
+  {
+    id:'signals', name:'Pipeline Intelligence', subtitle:'1 bot · 8 events · Last scan: 2h ago',
+    bots:[
+      {name:'Signals V2 Deep Scan',icon:'🔬',desc:'Every 4 hours — comprehensive pipeline analysis. Detects competitor mentions, stall tactics, pricing disconnects across all conversations.',
+       lastAction:'2h ago',preview:'2 competitor signals, 1 stall tactic detected',
+       metrics:[{v:'2',l:'Competitor Signals'},{v:'1',l:'Stall Tactics'},{v:'🟢',l:'Status'},{v:'4h',l:'Scan Interval'}],
+       activity:[
+         {text:'🚨 COMPETITOR: Sandra Miller mentioned "another investor offered $180K." Our MAO: $172K. Gap: $8K.',time:todayAt(12,00),color:'red'},
+         {text:'⚠️ STALL: Lisa Park — "Let me think about it" repeated 3 times across 2 calls. Classic stall pattern.',time:todayAt(12,00),color:'yellow'},
+         {text:'💰 PRICING DISCONNECT: 901 Walnut St — seller expects $200K, our MAO $165K. 21% gap.',time:todayAt(12,00),color:'yellow'},
+       ]}
+    ]
+  },
+  {
+    id:'standalone', name:'Planned / External', subtitle:'3 bots · 31 events',
+    bots:[
+      {name:'PPL Refund Bot',icon:'💰',desc:'Files lead disputes on PPL platforms. Needs Playwright automation (no API). 2 disputes filed, $300 potential refunds.',
+       lastAction:'1h ago',preview:'2 disputes filed today, $340 recovered this week',
+       metrics:[{v:'2',l:'Disputes Today'},{v:'$340',l:'Recovered'},{v:'78%',l:'Win Rate'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Dispute filed: Lead #4892 — wrong number, confirmed disconnected. $45 refund pending.',time:todayAt(13,20),color:'green'},
+         {text:'Dispute won: Lead #3301 — $65 refunded. Duplicate lead.',time:todayAt(9,00),color:'green'},
+       ]},
+      {name:'Market Watch Bot',icon:'🔍',desc:'Tracks market trends, comparable sales, and pricing shifts. Daily market intelligence for acquisition decisions.',
+       lastAction:'6h ago',preview:'Denver metro: median down 2.3% MoM',
+       metrics:[{v:'127',l:'Comps Tracked'},{v:'-2.3%',l:'Median MoM'},{v:'34',l:'Days on Market'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'Market update: Median $412K (-2.3% MoM). Inventory up 8%. Buyer market indicators strengthening.',time:todayAt(8,00),color:'blue'},
+       ]},
+      {name:'MLS Monitor Bot',icon:'🏠',desc:'Monitors MLS for pipeline properties that get listed. Alerts team when deal properties show up on market.',
+       lastAction:'25m ago',preview:'3 new matches today',
+       metrics:[{v:'3',l:'New Matches'},{v:'12',l:'Watching'},{v:'🟢',l:'Status'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'New MLS match: 4401 Elm St — 3BR/1BA, $189K, estimated ARV $280K. Distressed. Alert sent.',time:todayAt(14,20),color:'green'},
+         {text:'New MLS match: 7890 Birch Blvd — 4BR/2BA, $210K, ARV $340K. Estate sale.',time:todayAt(11,10),color:'green'},
+       ]}
+    ]
+  },
+  {
+    id:'transcript', name:'Transcript Processing', subtitle:'3 bots · 142 events · Last scan: 3m ago — Needs Gunner webhook',
     bots:[
       {name:'LM Assistant',icon:'📞',desc:'Post-call automation for Lead Managers. Processes call transcripts, updates CRM fields, and triggers follow-up workflows automatically.',
        lastAction:'3m ago',preview:'Marcus Rivera → Robert Williams re: 4521 Elm St — Grade: B',
