@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gunner Automation Pathway — Demo</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0a0e17;--card:#131a2b;--card-hover:#1a2340;--border:#1e2a45;--text:#e2e8f0;--text-dim:#64748b;--green:#22c55e;--yellow:#eab308;--blue:#3b82f6;--purple:#a855f7;--orange:#f97316;--gray:#4b5563}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(59,130,246,0.08),transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(168,85,247,0.06),transparent 50%),radial-gradient(ellipse at 50% 80%,rgba(34,197,94,0.05),transparent 50%);pointer-events:none;z-index:0}
+
+.demo-banner{background:linear-gradient(135deg,#1a1a2e,#16213e);border-bottom:2px solid var(--purple);padding:10px 24px;text-align:center;font-size:14px;font-weight:700;color:var(--purple);letter-spacing:1px;position:relative;z-index:101}
+.demo-banner a{color:var(--blue);text-decoration:none;margin-left:16px;font-weight:600;font-size:12px}
+.demo-banner a:hover{text-decoration:underline}
+
+.header{position:sticky;top:0;z-index:100;background:rgba(10,14,23,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:16px 24px}
+.header-inner{max-width:1400px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.logo-area{display:flex;align-items:center;gap:14px}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,var(--blue),var(--purple));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 20px rgba(59,130,246,0.3)}
+.logo-text h1{font-size:22px;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-text p{font-size:12px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase}
+
+/* Summary Bar */
+.summary{max-width:1400px;margin:24px auto 0;padding:0 24px;position:relative;z-index:1}
+.summary-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px 32px;display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.summary-stats{display:flex;gap:24px;flex-wrap:wrap}
+.ss{text-align:center;min-width:80px}
+.ss .num{font-size:28px;font-weight:800}
+.ss .lbl{font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.5px}
+.ss.green .num{color:var(--green)}
+.ss.blue .num{color:var(--blue)}
+.ss.yellow .num{color:var(--yellow)}
+.ss.orange .num{color:var(--orange)}
+.ss.gray .num{color:var(--gray)}
+.progress-wrap{flex:1;min-width:200px}
+.progress-label{font-size:13px;color:var(--text-dim);margin-bottom:8px;display:flex;justify-content:space-between}
+.progress-bar{height:12px;background:#1e2a45;border-radius:6px;overflow:hidden;position:relative}
+.progress-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width 1s ease;position:relative}
+.progress-fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.15),transparent);animation:shimmer 2s infinite}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+
+/* Legend */
+.legend{max-width:1400px;margin:16px auto 0;padding:0 24px;display:flex;gap:20px;flex-wrap:wrap;position:relative;z-index:1}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-dim)}
+.leg .dot{width:10px;height:10px;border-radius:50%}
+.leg .dot.active{background:var(--green);box-shadow:0 0 8px var(--green)}
+.leg .dot.dry{background:var(--blue);box-shadow:0 0 8px var(--blue)}
+.leg .dot.standby{background:var(--yellow);box-shadow:0 0 6px var(--yellow)}
+.leg .dot.human{background:var(--orange);box-shadow:0 0 6px var(--orange)}
+.leg .dot.notbuilt{background:var(--gray)}
+
+/* Pathway */
+.pathway{max-width:1400px;margin:32px auto;padding:0 24px;position:relative;z-index:1}
+
+.phase{margin-bottom:48px;position:relative}
+.phase-header{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+.phase-num{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;box-shadow:0 0 20px rgba(59,130,246,0.3)}
+.phase-title{font-size:20px;font-weight:700;letter-spacing:0.5px}
+.phase-subtitle{font-size:12px;color:var(--text-dim)}
+
+.nodes{display:flex;flex-wrap:wrap;gap:16px;padding-left:24px;border-left:3px solid var(--border);margin-left:23px}
+
+.node{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;width:220px;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden}
+.node:hover{transform:translateY(-4px);border-color:rgba(255,255,255,0.15);box-shadow:0 8px 32px rgba(0,0,0,0.3)}
+.node::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+
+.node.active::before{background:var(--green);box-shadow:0 0 12px var(--green)}
+.node.dry::before{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+.node.standby::before{background:var(--yellow);box-shadow:0 0 10px var(--yellow)}
+.node.human::before{background:var(--orange);box-shadow:0 0 10px var(--orange)}
+.node.notbuilt::before{background:var(--gray)}
+.node.auto-sys::before{background:linear-gradient(90deg,var(--blue),var(--purple))}
+
+.node-icon{font-size:32px;margin-bottom:8px;display:block}
+.node.active .node-icon,.node.dry .node-icon,.node.standby .node-icon{animation:pulse 2s ease-in-out infinite}
+.node.human .node-icon{opacity:0.7}
+@keyframes pulse{0%,100%{transform:scale(1);filter:brightness(1)}50%{transform:scale(1.08);filter:brightness(1.3)}}
+@keyframes glow-green{0%,100%{box-shadow:0 0 5px var(--green)}50%{box-shadow:0 0 20px var(--green),0 0 40px rgba(34,197,94,0.2)}}
+@keyframes glow-blue{0%,100%{box-shadow:0 0 5px var(--blue)}50%{box-shadow:0 0 20px var(--blue),0 0 40px rgba(59,130,246,0.2)}}
+
+.node.active{animation:glow-green 3s ease-in-out infinite}
+.node.dry{animation:glow-blue 3s ease-in-out infinite}
+
+.node-name{font-size:14px;font-weight:700;margin-bottom:4px;line-height:1.3}
+.node-who{font-size:11px;color:var(--text-dim);margin-bottom:8px}
+.node-badge{display:inline-block;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:0.5px}
+.node.active .node-badge{background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.node.dry .node-badge{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.node.standby .node-badge{background:rgba(234,179,8,0.15);color:var(--yellow);border:1px solid rgba(234,179,8,0.3)}
+.node.human .node-badge{background:rgba(249,115,22,0.15);color:var(--orange);border:1px solid rgba(249,115,22,0.3)}
+.node.notbuilt .node-badge{background:rgba(75,85,99,0.15);color:var(--gray);border:1px solid rgba(75,85,99,0.3)}
+.node.auto-sys .node-badge{background:rgba(168,85,247,0.15);color:var(--purple);border:1px solid rgba(168,85,247,0.3)}
+
+/* Detail Modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;justify-content:center;align-items:center;backdrop-filter:blur(4px)}
+.modal-overlay.show{display:flex}
+.modal{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:460px;width:90%;position:relative}
+.modal-close{position:absolute;top:12px;right:16px;background:none;border:none;color:var(--text-dim);font-size:24px;cursor:pointer}
+.modal-close:hover{color:var(--text)}
+.modal-icon{font-size:48px;margin-bottom:12px}
+.modal-name{font-size:22px;font-weight:800;margin-bottom:4px}
+.modal-who{font-size:14px;color:var(--text-dim);margin-bottom:12px}
+.modal-desc{font-size:14px;line-height:1.6;color:var(--text);margin-bottom:16px}
+.modal-meta{font-size:12px;color:var(--text-dim);display:flex;flex-direction:column;gap:6px}
+.modal-meta span{display:flex;align-items:center;gap:6px}
+
+/* Connector line for subway feel */
+.phase:not(:last-child)::after{content:'';position:absolute;bottom:-32px;left:23px;width:3px;height:32px;background:linear-gradient(to bottom,var(--border),transparent)}
+
+@media(max-width:768px){
+  .nodes{gap:12px}
+  .node{width:100%}
+  .summary-card{flex-direction:column;align-items:stretch}
+}
+</style>
+</head>
+<body>
+
+<div class="demo-banner">
+  🔮 DEMO — Automation Pathway Visualization
+  <a href="index.html">Control Room</a>
+  <a href="dashboard.html">Engine Logs</a>
+</div>
+
+<div class="header">
+  <div class="header-inner">
+    <div class="logo-area">
+      <div class="logo-icon">🛤️</div>
+      <div class="logo-text">
+        <h1>Automation Pathway</h1>
+        <p>New Again Houses — Full Business Process</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="summary-card">
+    <div class="summary-stats">
+      <div class="ss green"><div class="num" id="s-active">0</div><div class="lbl">Active</div></div>
+      <div class="ss blue"><div class="num" id="s-dry">0</div><div class="lbl">Dry Run</div></div>
+      <div class="ss yellow"><div class="num" id="s-standby">0</div><div class="lbl">Standby</div></div>
+      <div class="ss orange"><div class="num" id="s-human">0</div><div class="lbl">Human</div></div>
+      <div class="ss gray"><div class="num" id="s-notbuilt">0</div><div class="lbl">Not Built</div></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span>Automation Coverage</span><span id="pct-label">0%</span></div>
+      <div class="progress-bar"><div class="progress-fill" id="pct-bar" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="leg"><div class="dot active"></div>Bot Active</div>
+  <div class="leg"><div class="dot dry"></div>Bot Dry Run</div>
+  <div class="leg"><div class="dot standby"></div>Bot Standby</div>
+  <div class="leg"><div class="dot human"></div>Human</div>
+  <div class="leg"><div class="dot notbuilt"></div>Not Built</div>
+</div>
+
+<div class="pathway" id="pathway"></div>
+
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-icon" id="m-icon"></div>
+    <div class="modal-name" id="m-name"></div>
+    <div class="modal-who" id="m-who"></div>
+    <div id="m-badge" style="margin-bottom:12px"></div>
+    <div class="modal-desc" id="m-desc"></div>
+    <div class="modal-meta" id="m-meta"></div>
+  </div>
+</div>
+
+<script>
+const DATA = [
+  { phase: "Lead Generation", phaseNum: 1, steps: [
+    { name:"PPL Platforms Deliver Leads", who:"Data Hygiene Bot", icon:"🤖", status:"dry", desc:"Leads from Leadzolo, PropertyLeads, MotivatedSellers flow in and are auto-cleaned.", deployed:"Feb 2025" },
+    { name:"Cold Calling Campaigns", who:"Human (LMs)", icon:"👤", status:"human", desc:"Lead managers run outbound cold calls via BatchDialer." },
+    { name:"SMS Campaigns", who:"Human (LMs)", icon:"👤", status:"human", desc:"Lead managers run SMS campaigns via BatchLeads." },
+    { name:"Inbound Calls / Website", who:"Human", icon:"👤", status:"human", desc:"Inbound leads from calls and website are handled manually." },
+  ]},
+  { phase: "Lead Intake & Cleaning", phaseNum: 2, steps: [
+    { name:"New Lead Enters GHL", who:"Automatic (GHL)", icon:"⚙️", status:"auto-sys", desc:"Leads automatically enter GoHighLevel CRM via integrations." },
+    { name:"Data Cleaning & Validation", who:"Data Hygiene Bot", icon:"🤖", status:"dry", desc:"Validates phone numbers, addresses, names. Flags bad data.", deployed:"Feb 2025" },
+    { name:"Source Tagging & Attribution", who:"Data Hygiene Bot", icon:"🤖", status:"dry", desc:"Tags each lead with its source for ROI tracking.", deployed:"Feb 2025" },
+    { name:"Duplicate Detection", who:"Data Hygiene Bot", icon:"🤖", status:"dry", desc:"Catches duplicates before they clog the pipeline.", deployed:"Feb 2025" },
+  ]},
+  { phase: "Lead Qualification", phaseNum: 3, steps: [
+    { name:"Lead Scoring (Hot/Warm)", who:"Lead IQ Bot", icon:"🤖", status:"dry", desc:"Scores leads based on motivation signals, property data, and source quality.", deployed:"Feb 2025" },
+    { name:"Initial Outreach (First Contact)", who:"Human (Daniel, Chris)", icon:"👤", status:"human", desc:"Lead managers make first contact calls to new leads." },
+    { name:"After-Hours Response", who:"After Hours Bot", icon:"🤖", status:"dry", desc:"Handles inbound leads that come in after business hours with auto-response.", deployed:"Feb 2025" },
+    { name:"Speed-to-Lead Monitoring", who:"Watchdog Bot", icon:"🤖", status:"dry", desc:"Monitors response times and alerts when leads sit too long.", deployed:"Feb 2025" },
+  ]},
+  { phase: "Lead Management", phaseNum: 4, steps: [
+    { name:"Qualification Calls", who:"Human (LMs)", icon:"👤", status:"human", desc:"Lead managers conduct deeper qualification conversations." },
+    { name:"Call Grading", who:"Gunner AI Coach", icon:"🤖", status:"active", desc:"AI grades every call for quality, objection handling, and script adherence. LIVE on getgunner.ai.", deployed:"Jan 2025", url:"https://getgunner.ai" },
+    { name:"Follow-Up Sequences", who:"Follow Up Bot", icon:"🤖", status:"dry", desc:"Automated follow-up replacing manual GHL workflows. Multi-touch sequences.", deployed:"Feb 2025" },
+    { name:"Pipeline Movement", who:"Human (LMs)", icon:"👤", status:"human", desc:"Lead managers move leads through pipeline stages manually." },
+    { name:"Pipeline Signal Detection", who:"Pipeline Signals Bot", icon:"🤖", status:"dry", desc:"Detects when leads show buying signals or need attention.", deployed:"Feb 2025" },
+    { name:"Voicemail Processing", who:"Voicemail Bot", icon:"🤖", status:"dry", desc:"Processes voicemails from CallRail, transcribes, and routes to correct team member.", deployed:"Feb 2025" },
+    { name:"Callback Capture", who:"Callback Capture Bot", icon:"🤖", status:"dry", desc:"Captures missed call callbacks and creates tasks for follow-up.", deployed:"Feb 2025" },
+  ]},
+  { phase: "Appointments & Offers", phaseNum: 5, steps: [
+    { name:"Schedule Appointments", who:"Appointment Bot", icon:"🤖", status:"standby", desc:"Will auto-schedule appointments when activated. Currently standby." },
+    { name:"Run Walkthroughs", who:"Human (Kyle - AM)", icon:"👤", status:"human", desc:"Acquisition manager walks the property in person." },
+    { name:"ARV / Property Analysis", who:"Human (future: ARV Assistant)", icon:"👤", status:"notbuilt", desc:"Property valuation and ARV analysis. Future bot planned." },
+    { name:"Make Offers", who:"Human (Kyle)", icon:"👤", status:"human", desc:"Kyle presents offers to sellers." },
+    { name:"Negotiate", who:"Human (Kyle)", icon:"👤", status:"human", desc:"Kyle handles seller negotiations." },
+  ]},
+  { phase: "Under Contract", phaseNum: 6, steps: [
+    { name:"Generate Contracts", who:"Contract Bot", icon:"🤖", status:"standby", desc:"Will auto-generate contracts from deal data. Currently standby." },
+    { name:"Get Signatures", who:"Human", icon:"👤", status:"human", desc:"Signatures collected manually via DocuSign or in person." },
+    { name:"Deal Packaging", who:"Deal Packaging Bot", icon:"🤖", status:"dry", desc:"Assembles deal packages: photos, numbers, comps, details for buyers.", deployed:"Feb 2025" },
+    { name:"Quality Check on Package", who:"Deal Packaging Bot", icon:"🤖", status:"dry", desc:"QC pass on deal packages before distribution.", deployed:"Feb 2025" },
+  ]},
+  { phase: "Disposition (Selling the Deal)", phaseNum: 7, steps: [
+    { name:"Weekly Schedule Engine", who:"Schedule Engine Bot", icon:"🤖", status:"dry", desc:"Plans weekly disposition schedule for deal releases.", deployed:"Feb 2025" },
+    { name:"Push to Platforms", who:"Platform Distributor Bot", icon:"🤖", status:"dry", desc:"Distributes deals to InvestorLift, Mevlo, Facebook, etc.", deployed:"Feb 2025" },
+    { name:"Buyer FAQ Responses", who:"FAQ Auto-Responder Bot", icon:"🤖", status:"dry", desc:"Auto-responds to common buyer questions on deal listings.", deployed:"Feb 2025" },
+    { name:"Buyer Hunts", who:"Human (Esteban)", icon:"👤", status:"human", desc:"Esteban proactively hunts for buyers via InvestorBase, MLS." },
+    { name:"Buyer Hunt Support", who:"Buyer Hunt Support Bot", icon:"🤖", status:"dry", desc:"Provides scripts, comparable data, and templates for buyer outreach.", deployed:"Feb 2025" },
+    { name:"48-Hour Marketing Clock", who:"48-Hour Clock Bot", icon:"🤖", status:"dry", desc:"Tracks the 48-hour marketing window and escalates if no buyer interest.", deployed:"Feb 2025" },
+    { name:"Buyer Response Tracking", who:"Response Tracker Bot", icon:"🤖", status:"dry", desc:"Tracks all buyer responses and engagement across platforms.", deployed:"Feb 2025" },
+    { name:"Qualify Buyers", who:"Human (Esteban)", icon:"👤", status:"human", desc:"Esteban qualifies potential buyers for proof of funds, experience." },
+    { name:"Schedule Showings", who:"Human (Esteban)", icon:"👤", status:"human", desc:"Esteban coordinates property showings with buyers." },
+    { name:"Negotiate with Buyers", who:"Human (Esteban)", icon:"👤", status:"human", desc:"Esteban handles buyer-side negotiations." },
+  ]},
+  { phase: "Closing", phaseNum: 8, steps: [
+    { name:"Open Escrow", who:"Human (TC)", icon:"👤", status:"human", desc:"Transaction coordinator opens escrow with title company." },
+    { name:"Title Work", who:"Human (TC)", icon:"👤", status:"human", desc:"TC coordinates title search and resolution of any liens." },
+    { name:"Coordinate Closing", who:"Human (TC)", icon:"👤", status:"human", desc:"TC manages the closing process and all parties involved." },
+    { name:"Post-Close Follow-Up", who:"Post-Close Bot", icon:"🤖", status:"standby", desc:"Will automate post-close follow-ups with sellers and buyers. Standby." },
+  ]},
+  { phase: "Back Office", phaseNum: 9, steps: [
+    { name:"KPI Entry", who:"Human (Jessica)", icon:"👤", status:"notbuilt", desc:"Jessica enters KPIs manually. KPI Bot blocked on Sheets API integration." },
+    { name:"Daily/Weekly Reports", who:"Report Generator Bot", icon:"🤖", status:"dry", desc:"Generates automated daily and weekly performance reports.", deployed:"Feb 2025" },
+    { name:"Data Maintenance", who:"CRM Scanner Bot", icon:"🤖", status:"dry", desc:"Scans CRM for stale data, missing fields, and cleanup opportunities.", deployed:"Feb 2025" },
+    { name:"Market Monitoring", who:"Market Watch Bot", icon:"🤖", status:"standby", desc:"Will monitor market trends and alert on changes. Standby." },
+    { name:"MLS Monitoring", who:"MLS Monitor Bot", icon:"🤖", status:"standby", desc:"Will monitor MLS for comps and new listings. Standby." },
+    { name:"PPL Disputes", who:"Human (future: PPL Refund Bot)", icon:"👤", status:"notbuilt", desc:"Disputing bad PPL leads. PPL Refund Bot planned but blocked." },
+  ]},
+];
+
+// Render
+const pathway = document.getElementById('pathway');
+let counts = { active:0, dry:0, standby:0, human:0, notbuilt:0, 'auto-sys':0 };
+let totalSteps = 0;
+let botSteps = 0;
+
+DATA.forEach(p => {
+  const sec = document.createElement('div');
+  sec.className = 'phase';
+  sec.innerHTML = `<div class="phase-header"><div class="phase-num">${p.phaseNum}</div><div><div class="phase-title">${p.phase}</div><div class="phase-subtitle">${p.steps.length} steps</div></div></div>`;
+  const nodesDiv = document.createElement('div');
+  nodesDiv.className = 'nodes';
+  p.steps.forEach((s,i) => {
+    totalSteps++;
+    counts[s.status] = (counts[s.status]||0) + 1;
+    if(['active','dry','standby','auto-sys'].includes(s.status)) botSteps++;
+    const badgeText = {active:'Active',dry:'Dry Run',standby:'Standby',human:'Human',notbuilt:'Not Built','auto-sys':'Automatic'}[s.status];
+    const n = document.createElement('div');
+    n.className = `node ${s.status}`;
+    n.innerHTML = `<span class="node-icon">${s.icon}</span><div class="node-name">${s.name}</div><div class="node-who">${s.who}</div><span class="node-badge">${badgeText}</span>`;
+    n.onclick = () => openModal(s);
+    nodesDiv.appendChild(n);
+  });
+  sec.appendChild(nodesDiv);
+  pathway.appendChild(sec);
+});
+
+// Summary
+document.getElementById('s-active').textContent = counts.active||0;
+document.getElementById('s-dry').textContent = counts.dry||0;
+document.getElementById('s-standby').textContent = counts.standby||0;
+document.getElementById('s-human').textContent = counts.human||0;
+document.getElementById('s-notbuilt').textContent = counts.notbuilt||0;
+const pct = Math.round((botSteps/totalSteps)*100);
+document.getElementById('pct-label').textContent = pct + '% (' + botSteps + '/' + totalSteps + ' steps)';
+setTimeout(()=>{ document.getElementById('pct-bar').style.width = pct+'%'; }, 200);
+
+// Modal
+function openModal(s) {
+  const badgeText = {active:'Active',dry:'Dry Run',standby:'Standby',human:'Human',notbuilt:'Not Built','auto-sys':'Automatic'}[s.status];
+  document.getElementById('m-icon').textContent = s.icon;
+  document.getElementById('m-name').textContent = s.name;
+  document.getElementById('m-who').textContent = s.who;
+  document.getElementById('m-badge').innerHTML = `<span class="node-badge" style="font-size:12px;padding:4px 12px">${badgeText}</span>`;
+  document.getElementById('m-badge').className = s.status;
+  document.getElementById('m-desc').textContent = s.desc || '';
+  let meta = '';
+  if(s.deployed) meta += `<span>📅 Deployed: ${s.deployed}</span>`;
+  if(s.url) meta += `<span>🔗 <a href="${s.url}" target="_blank" style="color:var(--blue)">${s.url}</a></span>`;
+  if(s.status==='notbuilt') meta += `<span>⏳ Planned for future build</span>`;
+  document.getElementById('m-meta').innerHTML = meta;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeModal(); });
+</script>
+</body>
+</html>
