@@ -98,6 +98,51 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
 .signal-card .signal-title{font-size:12px;font-weight:700;color:var(--red);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
 .signal-card .signal-text{font-size:13px;line-height:1.5;color:var(--text)}
 
+/* Dispo Pipeline Styles */
+.pipeline-section{margin-bottom:32px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;overflow-x:auto}
+.pipeline-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.pipeline-header h2{font-size:18px;font-weight:700;background:linear-gradient(135deg,var(--green),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pipeline-header .pipeline-badge{padding:4px 10px;border-radius:6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.pipeline-flow{display:flex;align-items:flex-start;gap:8px;min-width:max-content;padding:10px 0}
+.pipeline-stage{display:flex;flex-direction:column;align-items:center;gap:6px}
+.stage-pill{padding:10px 16px;border-radius:10px;background:var(--card-hover);border:1px solid var(--border);font-size:12px;font-weight:600;text-align:center;min-width:100px;transition:all 0.2s}
+.stage-pill.start-marketing{background:rgba(34,197,94,0.15);border-color:rgba(34,197,94,0.4);color:var(--green);box-shadow:0 0 15px rgba(34,197,94,0.2)}
+.stage-count{font-size:10px;color:var(--text-dim);background:rgba(255,255,255,0.05);padding:2px 8px;border-radius:4px}
+.stage-count.active{background:rgba(34,197,94,0.15);color:var(--green)}
+.pipeline-arrow{color:var(--text-dim);font-size:18px;display:flex;align-items:center;padding-top:8px}
+.pipeline-split{display:flex;flex-direction:column;gap:12px;position:relative;padding-left:20px}
+.pipeline-split::before{content:'';position:absolute;left:0;top:20px;bottom:20px;width:2px;background:var(--border)}
+.split-branch{display:flex;align-items:center;gap:8px}
+.split-branch::before{content:'';width:16px;height:2px;background:var(--border)}
+.branch-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;padding:6px 12px;border-radius:8px;min-width:100px;text-align:center}
+.branch-label.hunts{background:rgba(59,130,246,0.15);color:var(--blue);border:1px solid rgba(59,130,246,0.3)}
+.branch-label.lists{background:rgba(168,85,247,0.15);color:var(--purple);border:1px solid rgba(168,85,247,0.3)}
+.branch-channels{display:flex;flex-wrap:wrap;gap:6px;margin-left:8px}
+.channel-tag{font-size:10px;padding:4px 8px;border-radius:4px;background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid rgba(255,255,255,0.08)}
+.channel-tag.active{background:rgba(34,197,94,0.15);color:var(--green);border-color:rgba(34,197,94,0.3)}
+.schedule-bar{margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.schedule-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:10px}
+.schedule-days{display:flex;gap:4px;border-radius:8px;overflow:hidden}
+.schedule-day{flex:1;padding:10px 12px;text-align:center;font-size:11px;font-weight:600;text-transform:uppercase;transition:all 0.3s}
+.schedule-day.exclusive{background:rgba(59,130,246,0.2);color:var(--blue)}
+.schedule-day.public{background:rgba(34,197,94,0.2);color:var(--green)}
+.schedule-day.inbound{background:rgba(234,179,8,0.2);color:var(--yellow)}
+.schedule-day.today{box-shadow:inset 0 0 0 2px currentColor;animation:today-pulse 2s infinite}
+@keyframes today-pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.schedule-legend{display:flex;gap:16px;margin-top:10px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--text-dim)}
+.legend-dot{width:8px;height:8px;border-radius:2px}
+.legend-dot.blue{background:var(--blue)}
+.legend-dot.green{background:var(--green)}
+.legend-dot.yellow{background:var(--yellow)}
+.deal-preview{margin-top:16px;padding:12px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px}
+.deal-preview-title{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.deal-preview-content{font-size:12px;color:var(--text);line-height:1.5}
+.deal-preview-address{font-weight:600}
+.deal-preview-stats{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.deal-preview-stat{font-size:11px;color:var(--text-dim)}
+.deal-preview-stat span{color:var(--text);font-weight:600}
+
 @media(max-width:600px){
   .header-inner{flex-direction:column;align-items:flex-start}
   .stats-bar{width:100%;justify-content:space-between}
@@ -106,6 +151,7 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
   .stat{padding:6px 10px}
   .stat .num{font-size:15px}
   .team-bar{flex-direction:column}
+  .pipeline-flow{flex-wrap:wrap}
 }
 @media(max-width:400px){.desk-grid{grid-template-columns:1fr}}
 </style>
@@ -127,10 +173,10 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
       <div class="connection-badge">🟢 Connected to Engine</div>
       <span style="font-size:11px;color:var(--text-dim)" id="last-refresh"></span>
       <div class="stats-bar">
-        <div class="stat"><div class="dot green"></div><div><div class="num">25</div><div class="label">Online</div></div></div>
+        <div class="stat"><div class="dot green"></div><div><div class="num">27</div><div class="label">Online</div></div></div>
         <div class="stat"><div class="dot yellow"></div><div><div class="num">3</div><div class="label">Standby</div></div></div>
         <div class="stat"><div class="dot red"></div><div><div class="num">0</div><div class="label">Offline</div></div></div>
-        <div class="stat"><div><div class="num">28</div><div class="label">Total Bots</div></div></div>
+        <div class="stat"><div><div class="num">30</div><div class="label">Total Bots</div></div></div>
       </div>
     </div>
   </div>
@@ -154,8 +200,13 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
   </div>
   <div class="team-card">
     <div class="team-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706)">MS</div>
-    <div class="team-info"><div class="tname">Maria Santos</div><div class="trole">Dispo Manager</div></div>
-    <div class="team-score"><div class="tscore" style="color:var(--green)">—</div><div class="tcalls">12 buyers engaged</div></div>
+    <div class="team-info"><div class="tname">Maria Santos</div><div class="trole">Dispo Admin</div></div>
+    <div class="team-score"><div class="tscore" style="color:var(--green)">—</div><div class="tcalls">2 campaigns sent</div></div>
+  </div>
+  <div class="team-card">
+    <div class="team-avatar" style="background:linear-gradient(135deg,#10b981,#059669)">ER</div>
+    <div class="team-info"><div class="tname">Esteban Reyes</div><div class="trole">Dispo Manager</div></div>
+    <div class="team-score"><div class="tscore" style="color:var(--green)">3</div><div class="tcalls">buyers qualified • 1 offer</div></div>
   </div>
 </div>
 
@@ -169,7 +220,92 @@ body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;background:
   <div class="panel-body" id="p-body"></div>
 </div>
 
-<main class="main" id="main"></main>
+<main class="main">
+  <!-- Dispo Pipeline Section -->
+  <section class="pipeline-section" id="dispo-pipeline">
+    <div class="pipeline-header">
+      <h2>🚀 Dispo Pipeline</h2>
+      <span class="pipeline-badge">LIVE</span>
+    </div>
+    <div class="pipeline-flow">
+      <div class="pipeline-stage">
+        <div class="stage-pill">📋 Expectations Set</div>
+        <div class="stage-count">3 deals</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="stage-pill">📸 Photos</div>
+        <div class="stage-count">2 deals</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="stage-pill">📊 Details & Numbers</div>
+        <div class="stage-count active">1 deal</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="stage-pill">🌐 Property Website</div>
+        <div class="stage-count">1 deal</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-stage">
+        <div class="stage-pill start-marketing">🚦 START MARKETING</div>
+        <div class="stage-count active">1 ready</div>
+      </div>
+      <div class="pipeline-arrow">→</div>
+      <div class="pipeline-split">
+        <div class="split-branch">
+          <div class="branch-label hunts">🎯 Buyer Hunts</div>
+          <div class="branch-channels">
+            <span class="channel-tag active">InvestorLift</span>
+            <span class="channel-tag active">Mevlo</span>
+            <span class="channel-tag">Zillow</span>
+            <span class="channel-tag">MLS</span>
+            <span class="channel-tag active">Facebook</span>
+            <span class="channel-tag">Mass Campaigns</span>
+          </div>
+        </div>
+        <div class="split-branch">
+          <div class="branch-label lists">📋 Buyer Lists</div>
+          <div class="branch-channels">
+            <span class="channel-tag active">Privy</span>
+            <span class="channel-tag">OpenDeal</span>
+            <span class="channel-tag">JV Partners</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="schedule-bar">
+      <div class="schedule-title">Weekly Dispo Schedule</div>
+      <div class="schedule-days" id="schedule-days">
+        <div class="schedule-day exclusive" data-day="1">Mon<br><small>Exclusive</small></div>
+        <div class="schedule-day exclusive" data-day="2">Tue<br><small>Exclusive</small></div>
+        <div class="schedule-day public" data-day="3">Wed<br><small>Public Blast</small></div>
+        <div class="schedule-day inbound" data-day="4">Thu<br><small>Inbound + Hunts</small></div>
+        <div class="schedule-day inbound" data-day="5">Fri<br><small>Inbound + Hunts</small></div>
+      </div>
+      <div class="schedule-legend">
+        <div class="legend-item"><div class="legend-dot blue"></div>Mon-Tue: Exclusive buyer list push</div>
+        <div class="legend-item"><div class="legend-dot green"></div>Wed: Public blast everywhere</div>
+        <div class="legend-item"><div class="legend-dot yellow"></div>Thu-Fri: Inbound + buyer hunts</div>
+      </div>
+    </div>
+    <div class="deal-preview">
+      <div class="deal-preview-title">📍 Active Deal: Pulaski TN</div>
+      <div class="deal-preview-content">
+        <div class="deal-preview-address">123 Main Street, Pulaski, TN 38478</div>
+        <div class="deal-preview-stats">
+          <div class="deal-preview-stat">Ask: <span>$89,000</span></div>
+          <div class="deal-preview-stat">ARV: <span>$145,000</span></div>
+          <div class="deal-preview-stat">Margin: <span>$31,000</span></div>
+          <div class="deal-preview-stat">Stage: <span>Buyer Hunts (38h)</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- Engine Grids -->
+  <div id="engines-container"></div>
+</main>
 
 <script>
 // Helper: generate today's timestamps
@@ -334,49 +470,68 @@ const engines = [
     ]
   },
   {
-    id:'buyer-lead-gen', name:'Buyer Lead Gen', subtitle:'5 bots · 47 events · Last scan: 3m ago',
+    id:'dispo-lead-gen', name:'Dispo Lead Gen', subtitle:'7 bots · 83 events · Last scan: 2m ago',
     bots:[
-      {name:'Schedule Engine',icon:'📅',desc:'Weekly dispo cadence — Mon/Tue exclusive buyer list, Wed public blast, Thu/Fri inbound + buyer hunts. Express lane for urgent deals.',
-       lastAction:'3m ago',preview:'Today: Public Blast day — 2 deals pushed everywhere',
-       metrics:[{v:'Wed',l:'Today\'s Phase'},{v:'2',l:'Deals Pushed'},{v:'0',l:'Express Lane'},{v:'LIVE',l:'Mode'}],
+      {name:'Deal Packager',icon:'📦',desc:'Scores completeness, auto-generates PDF + email template when deal is ready. Signals "ready to market" for distribution.',
+       lastAction:'22m ago',preview:'Pulaski TN — 100% complete, PDF generated',
+       metrics:[{v:'1',l:'Ready to Market'},{v:'100%',l:'Completeness'},{v:'1',l:'PDFs Generated'},{v:'LIVE',l:'Mode'}],
        activity:[
-         {text:'📅 Wednesday = PUBLIC BLAST. Pushing 2 deals to all channels: InvestorLift, Mevlo, Facebook, email blast.',time:todayAt(9,00),color:'green'},
-         {text:'892 Pine St: Mon/Tue exclusive → 4 buyer list responses. Now going public.',time:todayAt(9,01),color:'blue'},
-         {text:'1847 Oak Ave: Held back — only 85% packaged. Will push when complete.',time:todayAt(9,01),color:'yellow'},
+         {text:'📦 Pulaski TN (123 Main St): 100% complete. ✅ Photos (12), ✅ ARV ($145K), ✅ Repairs ($25K), ✅ Comps (3), ✅ Title clean.',time:todayAt(14,38),color:'green'},
+         {text:'PDF generated: "123_Main_St_Pulaski_Deal_Package.pdf" — 4 pages with photos, numbers, comps.',time:todayAt(14,39),color:'green'},
+         {text:'Email template ready: Subject: "🔥 Off-Market: Pulaski TN | $89K Ask | $31K Margin"',time:todayAt(14,40),color:'blue'},
+         {text:'→ Deal marked "Ready to Market" — Schedule Engine will distribute per weekly cadence.',time:todayAt(14,41),color:'green'},
        ]},
-      {name:'FAQ Auto-Responder',icon:'💬',desc:'Auto-answers repetitive buyer questions (ARV, repairs, access, price, beds/baths) from deal data. Dispo Mgnr only handles negotiation.',
-       lastAction:'12m ago',preview:'8 questions auto-answered, 2 escalated to Maria',
-       metrics:[{v:'8',l:'Auto-Answered'},{v:'2',l:'Escalated'},{v:'80%',l:'Auto Rate'},{v:'LIVE',l:'Mode'}],
+      {name:'Schedule Engine',icon:'📅',desc:'Weekly cadence: Mon/Tue exclusive buyer push, Wed public blast, Thu/Fri inbound + hunts. Express lane for urgent deals.',
+       lastAction:'3m ago',preview:'Today: Public Blast day — Pulaski TN going everywhere',
+       metrics:[{v:'Wed',l:'Today\'s Phase'},{v:'1',l:'Deals Pushed'},{v:'0',l:'Express Lane'},{v:'LIVE',l:'Mode'}],
        activity:[
-         {text:'Auto-answered: "What\'s the ARV?" → "ARV is $310,000 based on recent comps in the area."',time:todayAt(14,30),color:'green'},
-         {text:'Auto-answered: "Is it occupied?" → "Property is currently vacant with immediate access."',time:todayAt(14,15),color:'green'},
-         {text:'🔀 ESCALATED to Maria: "Can we do $160K and close in 10 days?" → Negotiation, needs human.',time:todayAt(13,45),color:'yellow'},
-         {text:'Auto-answered: "Beds/baths?" → "3 bed / 2 bath, 1,850 sqft."',time:todayAt(13,20),color:'green'},
+         {text:'📅 Wednesday = PUBLIC BLAST. Pushing Pulaski TN to all channels now.',time:todayAt(9,00),color:'green'},
+         {text:'Pulaski TN: Mon/Tue exclusive → 2 buyer list responses. Now going public.',time:todayAt(9,01),color:'blue'},
+         {text:'Schedule Engine checked: No express lane deals today. Following standard cadence.',time:todayAt(8,00),color:'blue'},
        ]},
-      {name:'Buyer Hunt Support',icon:'🎯',desc:'Generates outreach lists with pre-written scripts for listing agents. Tracks contacts across deals, prevents duplicate outreach.',
-       lastAction:'1h ago',preview:'Generated 8-contact outreach list for 892 Pine St',
-       metrics:[{v:'8',l:'Contacts Found'},{v:'3',l:'Agents'},{v:'5',l:'Investors'},{v:'0',l:'Duplicates'}],
+      {name:'Platform Distributor',icon:'🚀',desc:'Pushes deals to InvestorLift, Mevlo, Facebook when schedule permits. Tracks views and responses per platform.',
+       lastAction:'8m ago',preview:'Pulaski TN → InvestorLift, Mevlo, Facebook — 47 views',
+       metrics:[{v:'3',l:'Platforms Active'},{v:'47',l:'Total Views'},{v:'8',l:'Responses'},{v:'LIVE',l:'Mode'}],
        activity:[
-         {text:'Outreach list generated for 892 Pine St: 3 listing agents (recent flips within 2mi), 5 rental-by-owner contacts from Zillow.',time:todayAt(13,00),color:'green'},
-         {text:'Script generated: "Hey [agent], your client flipped 820 Pine St last month — we have a similar project at 892 Pine St. Interested?"',time:todayAt(13,01),color:'blue'},
-         {text:'Duplicate prevented: John Smith already contacted about 2 other deals. Skipped.',time:todayAt(13,02),color:'blue'},
+         {text:'🚀 Published to InvestorLift: Pulaski TN deal page live. 23 views, 4 inquiries.',time:todayAt(9,15),color:'green'},
+         {text:'🚀 Published to Mevlo: Pulaski TN blast sent to 156 buyers. 18 opens, 3 responses.',time:todayAt(9,16),color:'green'},
+         {text:'🚀 Published to Facebook: Posted in 3 investor groups. 6 views, 1 inquiry.',time:todayAt(9,20),color:'green'},
+         {text:'Platform stats update: InvestorLift leading (49% of responses), Mevlo second (38%).',time:todayAt(14,00),color:'blue'},
        ]},
-      {name:'48-Hour Clock',icon:'⏰',desc:'Tracks marketing start for every deal. Escalating alerts at 12h/24h/36h/48h if no buyer interest.',
-       lastAction:'30m ago',preview:'892 Pine St: 38h elapsed, 4 interested buyers — on track',
-       metrics:[{v:'1',l:'Active Clocks'},{v:'38h',l:'Elapsed'},{v:'4',l:'Interested'},{v:'✅',l:'On Track'}],
+      {name:'FAQ Auto-Responder',icon:'💬',desc:'Auto-answers buyer questions (ARV, repairs, access, price) from deal data. Escalates negotiation to Dispo Mgnr.',
+       lastAction:'12m ago',preview:'6 questions auto-answered, 1 escalated to Esteban',
+       metrics:[{v:'6',l:'Auto-Answered'},{v:'1',l:'Escalated'},{v:'86%',l:'Auto Rate'},{v:'LIVE',l:'Mode'}],
        activity:[
-         {text:'⏰ 892 Pine St: 38h since marketing start. 4 buyer inquiries, 1 offer. On track — no escalation needed.',time:todayAt(14,00),color:'green'},
-         {text:'12h check: 892 Pine St — 2 views, 0 inquiries. Logged, watching.',time:todayAt(2,00),color:'blue'},
-         {text:'24h check: 892 Pine St — 8 views, 2 inquiries. Good momentum.',time:todayAt(14,00),color:'green'},
+         {text:'Auto-answered: "What\'s the ARV on Pulaski?" → "ARV is $145,000 based on 3 recent comps within 0.5 mi."',time:todayAt(14,30),color:'green'},
+         {text:'Auto-answered: "Is it occupied?" → "Property is currently vacant with immediate access available."',time:todayAt(14,15),color:'green'},
+         {text:'🔀 ESCALATED to Esteban: "Can you do $82K and close in 7 days?" → Negotiation, needs human.',time:todayAt(13,45),color:'yellow'},
+         {text:'Auto-answered: "What repairs does it need?" → "Est. $25K — roof, HVAC, cosmetics. Full scope in PDF."',time:todayAt(13,20),color:'green'},
        ]},
-      {name:'Response Tracker',icon:'📊',desc:'Scores buyer quality (funding, speed, repeat buyer). Source attribution across platforms. Auto-manages buyer pipeline stages.',
-       lastAction:'15m ago',preview:'4 buyers scored — 1 Tier 1, 2 Tier 2, 1 tire-kicker',
-       metrics:[{v:'4',l:'Buyers Scored'},{v:'1',l:'Tier 1'},{v:'2',l:'Tier 2'},{v:'75%',l:'Quality Rate'}],
+      {name:'Buyer Hunt Support',icon:'🎯',desc:'Generates outreach lists for listing agents near deal. Pre-writes scripts, tracks contacts across deals.',
+       lastAction:'1h ago',preview:'Generated 6-contact outreach list for Pulaski TN',
+       metrics:[{v:'6',l:'Contacts Found'},{v:'2',l:'Agents'},{v:'4',l:'Investors'},{v:'1',l:'Duplicates Skipped'}],
        activity:[
-         {text:'⭐ Tier 1: BuyerCo LLC — proof of funds confirmed, responded in 22 min, made offer at $165K. Source: InvestorLift.',time:todayAt(14,20),color:'green'},
-         {text:'Tier 2: Mike Realty — asked for access, no POF yet. Source: email blast. Score: +3 (asked for access).',time:todayAt(13,50),color:'blue'},
-         {text:'Tier 2: Denver Flips Inc — repeat buyer (bought 2 deals before). Source: Mevlo. Score: +5 (repeat).',time:todayAt(13,30),color:'blue'},
-         {text:'🔻 Tire-kicker: "Just looking, send me everything you have." No follow-up. Score: -2.',time:todayAt(12,00),color:'yellow'},
+         {text:'Outreach list generated for Pulaski TN: 2 listing agents (recent flips in Giles Co), 4 landlords from Zillow rentals.',time:todayAt(13,00),color:'green'},
+         {text:'Script generated: "Hey [agent], saw you just closed on Richland Ave — we have a similar 3/2 in Pulaski. Interested?"',time:todayAt(13,01),color:'blue'},
+         {text:'Duplicate prevented: Gary Thompson already contacted on Nashville deal last week. Skipped.',time:todayAt(13,02),color:'blue'},
+       ]},
+      {name:'48-Hour Clock',icon:'⏰',desc:'Tracks marketing start, escalates at 12h/24h/36h/48h if no buyer interest.',
+       lastAction:'30m ago',preview:'Pulaski TN: 38h elapsed, 3 buyers qualified — on track',
+       metrics:[{v:'1',l:'Active Clocks'},{v:'38h',l:'Elapsed'},{v:'3',l:'Qualified'},{v:'✅',l:'On Track'}],
+       activity:[
+         {text:'⏰ Pulaski TN: 38h since marketing start. 8 inquiries, 3 qualified buyers, 1 offer. On track!',time:todayAt(14,00),color:'green'},
+         {text:'12h check: Pulaski TN — 12 views, 2 inquiries. Good start.',time:todayAt(2,00),color:'blue'},
+         {text:'24h check: Pulaski TN — 31 views, 5 inquiries. Excellent momentum.',time:todayAt(9,00),color:'green'},
+         {text:'36h check: Pulaski TN — 47 views, 8 inquiries, 1 verbal offer. No escalation needed.',time:todayAt(14,00),color:'green'},
+       ]},
+      {name:'Response Tracker',icon:'📊',desc:'Scores buyer quality, source attribution, auto-manages buyer pipeline stages.',
+       lastAction:'15m ago',preview:'3 buyers qualified — 1 Tier 1, 2 Tier 2 on Pulaski',
+       metrics:[{v:'8',l:'Responses'},{v:'3',l:'Qualified'},{v:'1',l:'Offer Received'},{v:'38%',l:'Quality Rate'}],
+       activity:[
+         {text:'⭐ Tier 1: Middle TN Investments — POF confirmed ($200K), responded in 18 min, verbal offer at $86K. Source: InvestorLift.',time:todayAt(14,20),color:'green'},
+         {text:'Tier 2: Nashville Rentals LLC — asked for access, repeat buyer (bought 1 deal). Source: Mevlo.',time:todayAt(13,50),color:'blue'},
+         {text:'Tier 2: Local flipper Mike D — requested full package, asked about closing timeline. Source: Facebook.',time:todayAt(13,30),color:'blue'},
+         {text:'🔻 Tire-kicker filtered: "Send me everything in TN under $100K" — no specific interest. Deprioritized.',time:todayAt(12,00),color:'yellow'},
        ]}
     ]
   },
@@ -679,9 +834,20 @@ const engines = [
   }
 ];
 
+function highlightTodaySchedule() {
+  const today = new Date().getDay(); // 0=Sun, 1=Mon, ..., 5=Fri, 6=Sat
+  document.querySelectorAll('.schedule-day').forEach(day => {
+    day.classList.remove('today');
+    if (parseInt(day.dataset.day) === today) {
+      day.classList.add('today');
+    }
+  });
+}
+
 function render(){
-  const main=document.getElementById('main');
+  const main=document.getElementById('engines-container');
   main.innerHTML='';
+  highlightTodaySchedule();
   engines.forEach(eng=>{
     const section=document.createElement('div');
     section.className='engine';
