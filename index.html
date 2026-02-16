@@ -321,6 +321,40 @@ function fmtTime(d){return d.toLocaleTimeString([],{hour:'numeric',minute:'2-dig
 
 const engines = [
   {
+    id:'data-hygiene', name:'Data Hygiene', subtitle:'4 bots · 34 events · Last scan: 8m ago',
+    bots:[
+      {name:'Data Cleaner',icon:'🧹',desc:'Validates phone numbers, emails, normalizes names (ALL CAPS → Title Case), standardizes addresses.',
+       lastAction:'8m ago',preview:'12 contacts cleaned this cycle',
+       metrics:[{v:'12',l:'Cleaned'},{v:'🟢',l:'Status'},{v:'8m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🧹 Normalized name: JOHN SMITH → John Smith (contact 4521 Elm St)',time:todayAt(14,42),color:'blue'},
+         {text:'🧹 Fixed invalid email: test@test.com flagged as placeholder on Robert Williams',time:todayAt(14,38),color:'yellow'},
+         {text:'🧹 Standardized phone format for 8 contacts to +1XXXXXXXXXX',time:todayAt(13,15),color:'blue'},
+       ]},
+      {name:'Data Enrichment',icon:'🔍',desc:'Detects missing fields, standardizes PPL source tags, fixes attribution source for Lead IQ scoring.',
+       lastAction:'8m ago',preview:'3 attribution sources fixed',
+       metrics:[{v:'3',l:'Enriched'},{v:'🟢',l:'Status'},{v:'8m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🔍 Fixed attribution source: set to "propertyleads" from tag (was undefined — Lead IQ bug fix)',time:todayAt(14,40),color:'green'},
+         {text:'🔍 Standardized PPL source: "Property Leads" → "propertyleads" on 2 contacts',time:todayAt(14,39),color:'blue'},
+         {text:'🔍 Missing fields flagged: 5 contacts missing property address',time:todayAt(13,10),color:'yellow'},
+       ]},
+      {name:'Duplicate Detector',icon:'🔀',desc:'Finds contacts sharing the same phone or address. Flags for manual review — never auto-merges.',
+       lastAction:'8m ago',preview:'1 duplicate group found',
+       metrics:[{v:'1',l:'Duplicates'},{v:'🟢',l:'Status'},{v:'8m ago',l:'Last Run'},{v:'LIVE',l:'Mode'}],
+       activity:[
+         {text:'🔀 POSSIBLE DUPLICATE: 2 contacts share phone 615-555-1234 — Rob Williams & Robert Williams (4521 Elm St)',time:todayAt(14,36),color:'yellow'},
+       ]},
+      {name:'Quality Scorer',icon:'📊',desc:'Scores every contact 0-100 on data completeness. Tags as good/needs-review/poor.',
+       lastAction:'8m ago',preview:'42 good, 8 needs-review, 2 poor',
+       metrics:[{v:'42',l:'Good'},{v:'8',l:'Review'},{v:'2',l:'Poor'},{v:'81%',l:'Avg Score'}],
+       activity:[
+         {text:'📊 Quality scores: 42 contacts good (80+), 8 needs-review (50-79), 2 poor (<50)',time:todayAt(14,44),color:'blue'},
+         {text:'🏷️ Tagged 3 untouched contacts (zero activity since creation)',time:todayAt(14,43),color:'yellow'},
+       ]}
+    ]
+  },
+  {
     id:'lead-iq', name:'Lead Intelligence', subtitle:'3 bots · 52 events · Last scan: 2m ago',
     bots:[
       {name:'Lead IQ Scorer',icon:'🧠',desc:'AI-powered lead scoring. Analyzes source, motivation, timeline, condition, and price factors to assign HOT/WARM ratings. No COLD — every lead gets worked.',
